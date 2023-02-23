@@ -218,8 +218,8 @@ class Sai():
         return self.sai_client.clear_stats(obj, attrs, do_assert)
 
     # Flush FDB
-    def flush_fdb_entries(self, attrs=None):
-        return self.sai_client.flush_fdb_entries(attrs)
+    def flush_fdb_entries(self, obj, attrs=None):
+        self.sai_client.flush_fdb_entries(obj, attrs)
 
     # Host interface
     def remote_iface_exists(self, iface):
@@ -352,8 +352,8 @@ class Sai():
 
         return data.to_list()
 
-    def get_oids(self, obj_type=None):
-        return self.sai_client.get_oids(obj_type)
+    def get_object_key(self, obj_type=None):
+        return self.sai_client.get_object_key(obj_type)
 
     def assert_status_success(self, status, skip_not_supported=True, skip_not_implemented=True):
         if skip_not_supported:

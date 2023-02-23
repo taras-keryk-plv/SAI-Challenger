@@ -52,7 +52,7 @@ class SaiClient:
         raise NotImplementedError
 
     # Flush FDB
-    def flush_fdb_entries(self, attrs=None):
+    def flush_fdb_entries(self, obj, attrs=None):
         raise NotImplementedError
 
     # BULK
@@ -79,6 +79,14 @@ class SaiClient:
         raise NotImplementedError
 
     def remote_iface_agent_stop(self):
+        raise NotImplementedError
+
+    # Generic
+    def get_object_key(self, obj_type=None):
+        '''
+        Returns a dictionary where object type is a key,
+        and the list of SAI object keys (OIDs or entries) is a value.
+        '''
         raise NotImplementedError
 
     @staticmethod
