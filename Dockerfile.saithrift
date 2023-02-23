@@ -77,6 +77,13 @@ RUN sed -ri 's/^# unixsocket/unixsocket/' /etc/redis/redis.conf \
         && sed -ri 's/^daemonize yes/daemonize no/' /etc/redis/redis.conf \
         && sed -ri 's/^save/# save/' /etc/redis/redis.conf
 
+# Disable logging saiserver redis reply errors
+ENV REDIS_ERR = ":msg, contains, \"readData error: Unable to read redis reply\" ~ \n\
+:msg, contains, \"readData: failed to read redis reply on channel SAI_VS_UNITTEST_CHANNEL\" ~ \n\
+*.*;auth,authpriv.none\t -/var/log/syslog"
+RUN sed -ri '/\/var\/log\/syslog/s/^/#/' /etc/rsyslog.conf \
+        && sed -i "/auth.log/a ${REDIS_ERR}" /etc/rsyslog.conf
+
 # Disable kernel logging support
 RUN sed -ri '/imklog/s/^/#/' /etc/rsyslog.conf
 
