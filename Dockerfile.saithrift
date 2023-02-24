@@ -1,8 +1,4 @@
-FROM debian:buster-slim
-
-ENV SC_PLATFORM=broadcom
-ENV SC_ASIC=BCM56850
-ENV SC_TARGET=saivs
+FROM sc-base
 
 RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
@@ -15,43 +11,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install generic packages
 RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y \
-        apt-utils \
-        vim \
-        curl \
-        wget \
-        iproute2 \
-        unzip \
-        git \
-        procps \
-        build-essential \
-        graphviz \
-        doxygen \
-        aspell \
-        python3-pip \
-        rsyslog \
-        supervisor \
         cmake \
-        graphviz \
-        doxygen \
-        aspell \
         git \
-        nlohmann-json-dev \
-        python3-paramiko
+        nlohmann-json-dev
 
 RUN pip3 install redis
 
-# Add support for supervisord to handle startup dependencies
-RUN pip3 install supervisord-dependent-startup==1.4.0
-
 RUN pip3 install ctypesgen
 RUN apt-get install -y redis-server
-
-# Install sonic-swss-common & sonic-sairedis building dependencies
-RUN apt-get install -y \
-        make libtool m4 autoconf dh-exec debhelper automake cmake pkg-config \
-        libhiredis-dev libnl-3-dev libnl-genl-3-dev libnl-route-3-dev swig3.0 \
-        libpython2.7-dev libgtest-dev libgmock-dev libboost-dev autoconf-archive
-
 RUN apt-get install -y \
         libc-ares2 \
         libnl-3-dev libnl-genl-3-dev libnl-route-3-dev libnl-nf-3-dev libzmq3-dev \
@@ -81,20 +48,6 @@ RUN sed -ri 's/^# unixsocket/unixsocket/' /etc/redis/redis.conf \
 RUN sed -ri '/imklog/s/^/#/' /etc/rsyslog.conf
 
 WORKDIR /sai
-
-COPY sai.env /
-RUN git clone --recursive https://github.com/sonic-net/sonic-swss-common \
-        && cd sonic-swss-common \
-        && . /sai.env \
-        && git checkout ${SWSS_COMMON_ID} \
-        && ./autogen.sh \
-        && dpkg-buildpackage -us -uc -b --jobs=auto \
-        && cd .. \
-        && dpkg -i libswsscommon_1.0.0_amd64.deb \
-        && dpkg -i libswsscommon-dev_1.0.0_amd64.deb \
-        && rm -rf sonic-swss-common \
-        && rm -f *swsscommon*
-
 ## Install Thrift saiserver
 ENV platform=vs
 ENV SAITHRIFTV2=y
@@ -110,11 +63,9 @@ RUN wget "http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz" \
     --with-ruby=no --with-haskell=no --with-go=no --with-rs=no --with-haxe=no \
     --with-dotnetcore=no --with-d=no \
     && make && make install \
-    && pip3 install lib/py
-
-# Install SAI attributes metadata JSON generator
-COPY scripts/gen_attr_list /sai/gen_attr_list
-RUN apt-get install -y nlohmann-json-dev
+    && pip3 install lib/py \
+    && cd /sai \
+    && rm -rf thrift-0.11.0 thrift-0.11.0.tar.gz
 
 # Install patch for SAI check
 COPY patches/SAI/0001-improve-enum-values-integration-check-1727.patch /sai/
@@ -133,14 +84,20 @@ RUN git clone https://github.com/sonic-net/sonic-sairedis.git \
         && cd .. \
         && dpkg -i libsaivs_1.0.0_amd64.deb \
         && dpkg -i libsaivs-dev_1.0.0_amd64.deb \
+        && dpkg -i libsairedis_1.0.0_amd64.deb \
+        && dpkg -i libsairedis-dev_1.0.0_amd64.deb \
         && dpkg -i libsaimetadata_1.0.0_amd64.deb \
-        && dpkg -i libsaimetadata-dev_1.0.0_amd64.deb
-RUN cp 0001-improve-enum-values-integration-check-1727.patch sonic-sairedis \
+        && dpkg -i libsaimetadata-dev_1.0.0_amd64.deb \
+        && dpkg -i syncd-vs_1.0.0_amd64.deb \
+        && cp /sai/0001-improve-enum-values-integration-check-1727.patch /sai/sonic-sairedis \
         && cd sonic-sairedis && patch -p1 < 0001-improve-enum-values-integration-check-1727.patch \
         && cd SAI && make saithrift-install \
         && cp meta/saimetadatautils.c /sai/gen_attr_list/ \
         && cp meta/saimetadata.c /sai/gen_attr_list/ \
-        && cp meta/saiserialize.c /sai/gen_attr_list/ 
+        && cp meta/saiserialize.c /sai/gen_attr_list/ \
+        && mv /sai/sonic-sairedis/tests /sai/ \
+        && rm -rf /sai/sonic-sairedis/* \
+        && mv /sai/tests /sai/sonic-sairedis/
 
 # Build SAI attributes metadata JSON generator and generate /etc/sai/sai.json
 RUN cd /sai/gen_attr_list \
@@ -151,47 +108,12 @@ RUN cd /sai/gen_attr_list \
         && ./attr_list_generator > /etc/sai/sai.json
 
 # Setup supervisord
-ENV SC_TARGET_PATH=npu/${SC_PLATFORM}/${SC_ASIC}/${SC_TARGET}
-COPY ${SC_TARGET_PATH}/configs/sai.profile                 /etc/sai.d/sai.profile
-COPY ${SC_TARGET_PATH}/configs/lanemap.ini                 /usr/share/sonic/hwsku/lanemap.ini
-COPY ${SC_TARGET_PATH}/configs/port_config.ini             /usr/share/sonic/hwsku/port_config.ini
-COPY ${SC_TARGET_PATH}/configs/supervisord.conf.saithrift  /etc/supervisor/conf.d/supervisord.conf
 COPY scripts/veth-create.sh                                /usr/bin/veth-create.sh
 
 
 RUN pip3 install scapy pysubnettree pytest
 
-
-# Install SAI-C dependencies
-RUN pip3 install pytest pytest_dependency pytest-html pdbpp macaddress click==8.0
-
-# Install PTF dependencies
-RUN pip3 install scapy dpkt
-
-# Install ptf_nn_agent and PTF helpers (required by sai_dataplane.py)
-COPY ptf/ptf_nn/ptf_nn_agent.py      /ptf/ptf_nn/ptf_nn_agent.py
-COPY ptf/setup.py                    /ptf/setup.py
-COPY ptf/README.md                   /ptf/README.md
-COPY ptf/src/ptf/*.py                /ptf/src/ptf/
-COPY ptf/src/ptf/platforms/*.py      /ptf/src/ptf/platforms/
-COPY ptf/requirements.txt            /ptf/requirements.txt
-RUN echo "#mock" > /ptf/ptf && pip3 install /ptf
-
-# Deploy SAI Challenger
-COPY common              /sai-challenger/common
-COPY cli                 /sai-challenger/cli
-COPY topologies          /sai-challenger/topologies
-COPY setup.py            /sai-challenger/setup.py
-COPY scripts/sai-cli-completion.sh   /sai-challenger/scripts/sai-cli-completion.sh
-RUN echo ". /sai-challenger/scripts/sai-cli-completion.sh" >> /root/.bashrc
-
-# Deploy a remote commands listener
-COPY scripts/redis-cmd-listener.py   /sai-challenger/scripts/redis-cmd-listener.py
-
-# Install SAI Challenger
-RUN pip3 install /sai-challenger/common /sai-challenger
-
-
 WORKDIR /sai-challenger
 
 CMD ["/usr/bin/supervisord"]
+
