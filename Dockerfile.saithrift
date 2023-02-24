@@ -1,34 +1,17 @@
 FROM sc-base
 
-RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian buster-backports main" >> /etc/apt/sources.list
-
-## Make apt-get non-interactive
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Install generic packages
-RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y \
+RUN apt-get install -y \
         nlohmann-json-dev \
-        libc-ares2 \
-        libnl-3-dev libnl-genl-3-dev libnl-route-3-dev libnl-nf-3-dev libzmq3-dev \
-        m4
+        libtemplate-perl \
+        libconst-fast-perl \
+        libmoosex-aliases-perl \
+        libnamespace-autoclean-perl \
+        libgetopt-long-descriptive-perl \
+        aspell-en \
+        bison flex g++ libboost-all-dev libevent-dev libssl-dev
 
-# Update Redis configuration:
-# - Enable keyspace notifications as per sonic-swss-common/README.md
-# - Do not daemonize redis-server since supervisord will manage it
-# - Do not save Redis DB on disk
-RUN sed -ri 's/^# unixsocket/unixsocket/' /etc/redis/redis.conf \
-        && sed -ri 's/^unixsocketperm .../unixsocketperm 777/' /etc/redis/redis.conf \
-        && sed -ri 's/redis-server.sock/redis.sock/' /etc/redis/redis.conf \
-        && sed -ri 's/notify-keyspace-events ""/notify-keyspace-events AKE/' /etc/redis/redis.conf \
-        && sed -ri 's/^daemonize yes/daemonize no/' /etc/redis/redis.conf \
-        && sed -ri 's/^save/# save/' /etc/redis/redis.conf
-
-# Disable kernel logging support
-RUN sed -ri '/imklog/s/^/#/' /etc/rsyslog.conf
+RUN pip3 install ctypesgen
 
 WORKDIR /sai
 ## Install Thrift saiserver
@@ -50,9 +33,17 @@ RUN wget "http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz" \
     && cd /sai \
     && rm -rf thrift-0.11.0 thrift-0.11.0.tar.gz
 
-# Setup supervisord
-COPY scripts/veth-create.sh                                /usr/bin/veth-create.sh
+# Build SAI attributes metadata JSON generator and generate /etc/sai/sai.json
+RUN cd /sai/gen_attr_list \
+        && mkdir build && cd build \
+        && cmake .. \
+        && make -j$(nproc) \
+        && mkdir -p /etc/sai \
+        && ./attr_list_generator > /etc/sai/sai.json
+
+RUN pip3 install pysubnettree
 
 WORKDIR /sai-challenger
 
 CMD ["/usr/bin/supervisord"]
+
