@@ -28,7 +28,14 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y \
         python3-pip \
         rsyslog \
         supervisor \
-        python3-paramiko
+        python3-paramiko \
+        libtemplate-perl \
+        libconst-fast-perl \
+        libmoosex-aliases-perl \
+        libnamespace-autoclean-perl \
+        libgetopt-long-descriptive-perl \
+        aspell-en \
+        bison flex g++ libboost-all-dev libevent-dev libssl-dev
 
 # Add support for supervisord to handle startup dependencies
 RUN pip3 install supervisord-dependent-startup==1.4.0
@@ -93,10 +100,10 @@ RUN sed -ri 's/^# unixsocket/unixsocket/' /etc/redis/redis.conf \
 RUN sed -ri '/imklog/s/^/#/' /etc/rsyslog.conf
 
 # Install SAI-C dependencies
-RUN pip3 install pytest pytest_dependency pytest-html pdbpp macaddress click==8.0
+RUN pip3 install pytest pytest_dependency pytest-html pdbpp macaddress click==8.0 pysubnettree
 
 # Install PTF dependencies
-RUN pip3 install scapy dpkt
+RUN pip3 install scapy dpkt 
 
 # Install ptf_nn_agent and PTF helpers (required by sai_dataplane.py)
 COPY ptf/ptf_nn/ptf_nn_agent.py      /ptf/ptf_nn/ptf_nn_agent.py
