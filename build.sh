@@ -110,13 +110,6 @@ print-build-options() {
 trap print-build-options EXIT
 
 # Build base Docker image
-if [ "${SAI_INTERFACE}" = "thrift" ]; then
-    IMG_NAME=$(echo "sc-${ASIC_TYPE}-${TARGET}" | tr '[:upper:]' '[:lower:]')
-    docker build -f Dockerfile.saithrift -t $IMG_NAME .
-    exit 0
-fi
-
-# Build base Docker image
 if [ "${IMAGE_TYPE}" = "standalone" ]; then
     docker build -f Dockerfile -t sc-base .
 elif [ "${IMAGE_TYPE}" = "server" ]; then
@@ -128,12 +121,18 @@ else
     docker build -f Dockerfile.client -t sc-client .
 fi
 
+# Build base thrift Docker image
+if [ "${SAI_INTERFACE}" = "thrift" ]; then
+    docker build -f Dockerfile.saithrift -t sc-thrift-base .
+fi
+
 # Build target Docker image
 pushd "${ASIC_PATH}/${TARGET}"
+IMG_NAME=$(echo "${ASIC_TYPE}-${TARGET}" | tr '[:upper:]' '[:lower:]')
 if [ "${IMAGE_TYPE}" = "standalone" ]; then
-    docker build -f Dockerfile -t sc-${ASIC_TYPE}-${TARGET} .
+    docker build -f Dockerfile -t sc-${IMG_NAME} .
 elif [ "${IMAGE_TYPE}" = "server" ]; then
-    docker build -f Dockerfile.server -t sc-server-${ASIC_TYPE}-${TARGET} .
+    docker build -f Dockerfile.server -t sc-server-${IMG_NAME} .
 fi
 popd
 
