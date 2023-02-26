@@ -162,10 +162,7 @@ if [ "${COMMAND}" = "start" ]; then
 elif [ "${COMMAND}" = "stop" ]; then
 
     # Stop Docker container
-    if [ "${SAI_INTERFACE}" = "thrift" ]; then
-        CONTAINER_NAME=$(echo "sc-thrift-${ASIC_TYPE}-${TARGET}-run" | tr '[:upper:]' '[:lower:]')
-        stop_docker_container ${CONTAINER_NAME}
-    elif [ "${IMAGE_TYPE}" = "standalone" ]; then
+    if [ "${IMAGE_TYPE}" = "standalone" ]; then
         stop_docker_container sc-${ASIC_TYPE}-${TARGET}-run
     elif [ "${IMAGE_TYPE}" = "server" ]; then
         stop_docker_container sc-server-${ASIC_TYPE}-${TARGET}-run

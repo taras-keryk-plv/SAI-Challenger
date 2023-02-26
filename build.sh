@@ -102,6 +102,7 @@ print-build-options() {
     echo " ASIC name          : ${ASIC_TYPE}"
     echo " ASIC target        : ${TARGET}"
     echo " Platform path      : ${ASIC_PATH}"
+    echo " SAI interface      : ${SAI_INTERFACE}"     
     echo
     echo "==========================================="
     echo
@@ -121,19 +122,16 @@ else
     docker build -f Dockerfile.client -t sc-client .
 fi
 
-# Build base thrift Docker image
-if [ "${SAI_INTERFACE}" = "thrift" ]; then
-    docker build -f Dockerfile.saithrift -t sc-thrift-base .
-fi
-
 # Build target Docker image
 pushd "${ASIC_PATH}/${TARGET}"
 IMG_NAME=$(echo "${ASIC_TYPE}-${TARGET}" | tr '[:upper:]' '[:lower:]')
 if [ "${IMAGE_TYPE}" = "standalone" ]; then
-    docker build -f Dockerfile -t sc-${IMG_NAME} .
+    if [ "${SAI_INTERFACE}" = "thrift" ]; then
+        docker build -f Dockerfile.saithrift -t sc-${IMG_NAME} .
+    else
+        docker build -f Dockerfile -t sc-${IMG_NAME} .
+    fi
 elif [ "${IMAGE_TYPE}" = "server" ]; then
     docker build -f Dockerfile.server -t sc-server-${IMG_NAME} .
 fi
 popd
-
-
