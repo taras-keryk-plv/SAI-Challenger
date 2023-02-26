@@ -14,26 +14,23 @@ RUN apt-get install -y \
 RUN pip3 install ctypesgen
 
 WORKDIR /sai
-## Install Thrift saiserver
-ENV platform=vs
+
 ENV SAITHRIFTV2=y
 
 ## Install Thrift code gen
 RUN wget "http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz" \
-    && tar -xf thrift-0.11.0.tar.gz \
-    && cd thrift-0.11.0 \
-    && ./bootstrap.sh \ 
-    && ./configure --prefix=/usr --with-cpp --with-python \
-    --with-qt4=no --with-qt5=no --with-csharp=no --with-java=no --with-erlang=no \
+        && tar -xf thrift-0.11.0.tar.gz \
+        && cd thrift-0.11.0 \
+        && ./bootstrap.sh \
+        && ./configure --prefix=/usr --with-cpp --with-python \
+        --with-qt4=no --with-qt5=no --with-csharp=no --with-java=no --with-erlang=no \
         --with-nodejs=no --with-lua=no --with-per=no --with-php=no --with-dart=no \
-    --with-ruby=no --with-haskell=no --with-go=no --with-rs=no --with-haxe=no \
-    --with-dotnetcore=no --with-d=no \
-    && make && make install \
-    && pip3 install lib/py \
-    && cd /sai \
-    && rm -rf thrift-0.11.0 thrift-0.11.0.tar.gz
-
-#RUN pip3 install pysubnettree
+        --with-ruby=no --with-haskell=no --with-go=no --with-rs=no --with-haxe=no \
+        --with-dotnetcore=no --with-d=no \
+        && make && make install \
+        && pip3 install lib/py \
+        && cd /sai \
+        && rm -rf thrift-0.11.0 thrift-0.11.0.tar.gz
 
 # Install patch for SAI check
 COPY patches/SAI/0001-improve-enum-values-integration-check-1727.patch /sai/
@@ -59,6 +56,9 @@ RUN git clone https://github.com/sonic-net/sonic-sairedis.git \
         && cp /sai/0001-improve-enum-values-integration-check-1727.patch /sai/sonic-sairedis \
         && cd /sai/sonic-sairedis && patch -p1 < 0001-improve-enum-values-integration-check-1727.patch \
         && cd SAI && make saithrift-install \
+        && cd test/saithriftv2/ \
+        && make meta \
+        && make install-pylib \
         && cp meta/saimetadatautils.c /sai/gen_attr_list/ \
         && cp meta/saimetadata.c /sai/gen_attr_list/ \
         && cp meta/saiserialize.c /sai/gen_attr_list/ \
