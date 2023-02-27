@@ -25,6 +25,8 @@ print-help() {
     echo "     ASIC to be tested"
     echo "  -t TARGET"
     echo "     Target device with this NPU"
+    echo "  -s [redis|thrift]"
+    echo "     SAI interface"
     echo
     exit 0
 }
@@ -127,7 +129,7 @@ pushd "${ASIC_PATH}/${TARGET}"
 IMG_NAME=$(echo "${ASIC_TYPE}-${TARGET}" | tr '[:upper:]' '[:lower:]')
 if [ "${IMAGE_TYPE}" = "standalone" ]; then
     if [ "${SAI_INTERFACE}" = "thrift" ]; then
-        docker build -f Dockerfile.saithrift -t sc-${IMG_NAME} .
+        docker build -f Dockerfile.saithrift -t sc-${IMG_NAME}-thrift .
     else
         docker build -f Dockerfile -t sc-${IMG_NAME} .
     fi
