@@ -89,7 +89,11 @@ config_default = {
 
 class SaiPtfDataPlane(SaiDataPlane, TestCase):
     def __init__(self, cfg=None):
+        self.conf = config_default
         super().__init__(cfg)
+
+    def setConfig(self, conf):
+        self.conf = conf
 
     def setUp(self):
         assert self.dataplane is not None
@@ -148,7 +152,7 @@ class SaiPtfDataPlane(SaiDataPlane, TestCase):
 
     def init(self):
         global ptf
-        ptf.config.update(config_default)
+        ptf.config.update(self.conf)
 
         self.__logging_setup(config)
 
