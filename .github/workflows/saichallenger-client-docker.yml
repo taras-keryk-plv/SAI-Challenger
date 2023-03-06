@@ -1,0 +1,36 @@
+name: SAI-Challenger-docker-client-bldr-img
+
+on:
+  push:
+    branches: [ "**" ]
+    paths:
+      - '.github/workflows/saichallenger-client-docker.yml'
+      - 'dockerfiles/Dockerfile'
+      - 'dockerfiles/Dockerfile.client'
+      - 'dockerfiles/Dockerfile.saithrift-client'
+      - 'dockerfiles/Dockerfile.server'
+      - '/npu/broadcom/trident2/saivs/Dockerfile.saithrift'
+      - '/npu/broadcom/trident2/saivs/Dockerfile'
+      - '/npu/broadcom/trident2/saivs/Dockerfile.server'
+      - '.dockerignore'
+
+jobs:
+  build:
+    name: Build dash-saichallenger-client-bldr-image
+    runs-on: ubuntu-20.04
+    env:
+      docker_fg_flags: -u root --privileged
+      docker_bg_flags: -d -u root --privileged
+    #defaults:
+    #  run:
+    #    working-directory: ./dash-pipeline
+    steps:
+    - uses: actions/checkout@v3
+    - name: submodules update
+      run: git submodule update --init --recursive
+    - name: build  docker image
+      run:  ./build.sh -a trident2 -t saivs
+    - name: run docker image
+      run: ./run.sh -a trident2 -t saivs
+    - name: run test
+      run: ./exec.sh -t saivs pytest --testbed=saivs_standalone -v -k "test_l2_basic"
