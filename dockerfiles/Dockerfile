@@ -1,5 +1,6 @@
 FROM debian:buster-slim
 
+
 MAINTAINER andriy.kokhan@gmail.com
 
 RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
