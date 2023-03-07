@@ -11,7 +11,7 @@ class SaiRedisClient(SaiClient):
     """Redis SAI client implementation to wrap low level SAI calls"""
     attempts = 40
 
-    def __init__(self, cfg):
+    def __init__1(self, cfg):
         self.config = cfg
         self.server_ip = cfg["ip"]
         self.loglevel = cfg["loglevel"]

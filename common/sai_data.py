@@ -4,7 +4,7 @@ from enum import Enum
 
 # TODO: make it dynamically generated from headers
 class SaiObjType(Enum):
-    PORT                     =  1
+    PORT  ,,                   =  1
     LAG                      =  2
     VIRTUAL_ROUTER           =  3
     NEXT_HOP                 =  4
