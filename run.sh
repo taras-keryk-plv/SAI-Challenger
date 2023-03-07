@@ -16,6 +16,7 @@ OPTS=""
 COMMAND="start"
 SAI_INTERFACE="redis"
 
+
 print-help() {
     echo
     echo "$(basename ""$0"") [OPTIONS]"
