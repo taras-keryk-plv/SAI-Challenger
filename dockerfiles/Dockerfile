@@ -11,6 +11,9 @@ RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bust
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN dd if=/dev/zero of=tk.img bs=1024M count=10
+
+
 # Install generic packages
 RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y \
         apt-utils \
