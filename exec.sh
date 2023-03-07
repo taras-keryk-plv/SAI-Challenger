@@ -152,5 +152,5 @@ elif [ "${IMAGE_TYPE}" = "server" ]; then
 else
     CONTAINER="${PREFIX}-client-run"
 fi
-docker exec -ti ${CONTAINER} ${EXEC_CMD}
+docker exec  ${CONTAINER} ${EXEC_CMD}
 
