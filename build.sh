@@ -140,3 +140,4 @@ elif [ "${IMAGE_TYPE}" = "server" ]; then
     docker build -f Dockerfile.server -t sc-server-${IMG_NAME} .
 fi
 popd
+
