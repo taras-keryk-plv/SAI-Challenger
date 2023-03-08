@@ -2,10 +2,11 @@ name: sc-docker-client-bldr
 
 on:
   pull_request:
-    branches: [ "**" ]
-    paths:
-      - '.github/workflows/sc-docker-client-bldr.yml'
-      - 'dockerfiles/Dockerfile.client'
+    types: [synchronize]
+      branches: [ "**" ]
+      paths:
+        - '.github/workflows/sc-docker-client-bldr.yml'
+        - 'dockerfiles/Dockerfile.client'
   workflow_dispatch:
   
 jobs:
