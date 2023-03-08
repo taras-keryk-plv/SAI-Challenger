@@ -3,6 +3,7 @@ name: sc-docker-thrift-bldr
 on:
   pull_request:
     branches: [ "**" ]
+    types: [ synchronize ]
     paths:
       - '.github/workflows/sc-docker-thrift-bldr.yml'
       - 'dockerfiles/Dockerfile.saithrift-client'

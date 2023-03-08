@@ -3,6 +3,7 @@ name: sc-docker-server-bldr
 on:
   pull_request:
     branches: [ "**" ]
+    types: [ synchronize ]
     paths:
       - '.github/workflows/sc-docker-server-bldr.yml'
       - 'dockerfiles/Dockerfile.server'

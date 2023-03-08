@@ -3,6 +3,7 @@ name: sc-docker-common-bldr
 on:
   pull_request:
     branches: [ "**" ]
+    types: [ synchronize ]
     paths:
       - '.github/workflows/sc-docker-common-bldr.yml'
       - 'dockerfiles/Dockerfile'
