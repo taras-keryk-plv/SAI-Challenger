@@ -68,6 +68,10 @@ jobs:
     - name: run docker image
       run: 
         ./run.sh -a trident2 -t saivs
+    - name: setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      with:
+        sudo: false
     - name: run tests
       run:
         ./exec.sh -t saivs /etc/init.d/redis-server start
