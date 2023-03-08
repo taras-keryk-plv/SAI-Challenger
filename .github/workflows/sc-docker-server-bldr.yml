@@ -1,0 +1,35 @@
+name: sc-docker-server-bldr
+
+on:
+#  push:
+#    branches: [ "**" ]
+#    paths:
+#      - '.github/workflows/sc-docker-server-bldr.yml'
+#      - 'dockerfiles/Dockerfile.server'
+#      - 'npu/broadcom/trident2/saivs/Dockerfile.server'
+#      - 'npu/intel/tofino2/model/Dockerfile.server'
+#      - 'npu/intel/tofino/montara/Dockerfile.server'
+#      - 'npu/intel/tofino/model/Dockerfile.server'
+  pull_request:
+    branches: [ "**" ]
+    paths:
+      - '.github/workflows/sc-docker-server-bldr.yml'
+      - 'dockerfiles/Dockerfile.server'
+      - 'npu/broadcom/trident2/saivs/Dockerfile.server'
+      - 'npu/intel/tofino2/model/Dockerfile.server'
+      - 'npu/intel/tofino/montara/Dockerfile.server'
+      - 'npu/intel/tofino/model/Dockerfile.server'
+  workflow_dispatch:
+  
+jobs:
+    
+  build-sc-server:
+    name: Build SAI Challenger server image
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: submodules update
+      run: git submodule update --init
+    - name: build docker image
+      run: |
+       ./build.sh -i server
