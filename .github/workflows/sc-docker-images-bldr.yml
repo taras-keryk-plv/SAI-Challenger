@@ -66,8 +66,7 @@ jobs:
       run: sudo apt update
     - name: setup tmate session
       uses: mxschmitt/action-tmate@v3
-      with:
-        sudo: false
+
     - name: build docker image
       run: |
         ./build.sh -a trident2 -t saivs
