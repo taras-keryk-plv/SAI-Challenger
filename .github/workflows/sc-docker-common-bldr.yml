@@ -1,22 +1,14 @@
-name: sc-docker-images-bldr
+name: sc-docker-common-bldr
 
 on:
   push:
     branches: [ "**" ]
     paths:
-      - '.github/workflows/sc-docker-images-bldr.yml'
+      - '.github/workflows/sc-docker-common-bldr.yml'
       - 'dockerfiles/Dockerfile'
-      - 'dockerfiles/Dockerfile.client'
-      - 'dockerfiles/Dockerfile.saithrift-client'
-      - 'dockerfiles/Dockerfile.server'
-      - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
       - 'npu/broadcom/trident2/saivs/Dockerfile'
-      - 'npu/broadcom/trident2/saivs/Dockerfile.server'
       - 'npu/intel/tofino2/model/Dockerfile'
-      - 'npu/intel/tofino2/model/Dockerfile.server'
-      - 'npu/intel/tofino/montara/Dockerfile.server'
       - 'npu/intel/tofino/model/Dockerfile'
-      - 'npu/intel/tofino/model/Dockerfile.server'
       - 'usecases/pins/Dockerfile'
       - 'common/'
       - 'builds/'
@@ -29,19 +21,11 @@ on:
   pull_request:
     branches: [ "**" ]
     paths:
-      - '.github/workflows/sc-docker-images-bldr.yml'
+      - '.github/workflows/sc-docker-common-bldr.yml'
       - 'dockerfiles/Dockerfile'
-      - 'dockerfiles/Dockerfile.client'
-      - 'dockerfiles/Dockerfile.saithrift-client'
-      - 'dockerfiles/Dockerfile.server'
-      - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
       - 'npu/broadcom/trident2/saivs/Dockerfile'
-      - 'npu/broadcom/trident2/saivs/Dockerfile.server'
       - 'npu/intel/tofino2/model/Dockerfile'
-      - 'npu/intel/tofino2/model/Dockerfile.server'
-      - 'npu/intel/tofino/montara/Dockerfile.server'
       - 'npu/intel/tofino/model/Dockerfile'
-      - 'npu/intel/tofino/model/Dockerfile.server'
       - 'usecases/pins/Dockerfile'
       - 'common/'
       - 'builds/'
