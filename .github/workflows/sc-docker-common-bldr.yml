@@ -1,23 +1,23 @@
 name: sc-docker-common-bldr
 
 on:
-#  push:
-#    branches: [ "**" ]
-#    paths:
-#      - '.github/workflows/sc-docker-common-bldr.yml'
-#      - 'dockerfiles/Dockerfile'
-#      - 'npu/broadcom/trident2/saivs/Dockerfile'
-#      - 'npu/intel/tofino2/model/Dockerfile'
-#      - 'npu/intel/tofino/model/Dockerfile'
-#      - 'usecases/pins/Dockerfile'
-#      - 'common/'
-#      - 'builds/'
-#      - 'cli/'
-#      - 'scripts/'
-#      - 'configs/'
-#      - 'setup.py'
-#      - 'build.sh'
-#      - '.dockerignore'
+  push:
+    branches: [ "**" ]
+    paths:
+      - '.github/workflows/sc-docker-common-bldr.yml'
+      - 'dockerfiles/Dockerfile'
+      - 'npu/broadcom/trident2/saivs/Dockerfile'
+      - 'npu/intel/tofino2/model/Dockerfile'
+      - 'npu/intel/tofino/model/Dockerfile'
+      - 'usecases/pins/Dockerfile'
+      - 'common/'
+      - 'builds/'
+      - 'cli/'
+      - 'scripts/'
+      - 'configs/'
+      - 'setup.py'
+      - 'build.sh'
+      - '.dockerignore'
   pull_request:
     branches: [ "**" ]
     paths:
@@ -42,6 +42,7 @@ jobs:
   build-sc-client-thrift:
     name: Build SAI Challenger client thrift image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
@@ -53,6 +54,7 @@ jobs:
   build-sc-standalone:
     name: Build SAI Challenger standalone image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
@@ -64,6 +66,7 @@ jobs:
   build-sc-stadalone-thrift:
     name: Build SAI Challenger standalone thrift image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
@@ -75,6 +78,7 @@ jobs:
   build-sc-server:
     name: Build SAI Challenger server image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
@@ -86,6 +90,7 @@ jobs:
   build-sc-server-thrift:
     name: Build SAI Challenger server thrift image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update

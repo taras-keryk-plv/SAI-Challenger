@@ -1,12 +1,12 @@
 name: sc-docker-thrift-bldr
 
 on:
-#  push:
-#    branches: [ "**" ]
-#    paths:
-#      - '.github/workflows/sc-docker-thrift-bldr.yml'
-#      - 'dockerfiles/Dockerfile.saithrift-client'
-#      - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
+  push:
+    branches: [ "**" ]
+    paths:
+      - '.github/workflows/sc-docker-thrift-bldr.yml'
+      - 'dockerfiles/Dockerfile.saithrift-client'
+      - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
   pull_request:
     branches: [ "**" ]
     paths:
@@ -15,11 +15,11 @@ on:
       - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
   workflow_dispatch:
   
-jobs:
-  
+jobs: 
   build-sc-client-thrift:
     name: Build SAI Challenger client thrift image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
@@ -31,6 +31,7 @@ jobs:
   build-sc-stadalone-thrift:
     name: Build SAI Challenger standalone thrift image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
@@ -42,6 +43,7 @@ jobs:
   build-sc-server-thrift:
     name: Build SAI Challenger server thrift image
     runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
     - uses: actions/checkout@v3
     - name: submodules update
