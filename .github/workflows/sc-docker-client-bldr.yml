@@ -1,6 +1,5 @@
 name: sc-docker-client-bldr
 
-
 on:
   pull_request:
     branches: [ "**" ]
