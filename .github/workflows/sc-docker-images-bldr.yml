@@ -66,16 +66,37 @@ jobs:
       run: sudo apt update
     - name: setup tmate session
       uses: mxschmitt/action-tmate@v3
-
     - name: build docker image
       run: |
         ./build.sh -a trident2 -t saivs
     - name: run docker image
       run: 
-        ./run.sh -a trident2 -t saivs
-    - name: run tests
-      run:
-        ./exec.sh -t saivs /etc/init.d/redis-server start
+        ./run.sh -a trident2 -t saivs 
+    - name: sleep
+      run: sleep 60s
+
     - name: run tests
       run:
         ./exec.sh -t saivs pytest --testbed=saivs_standalone -v -k "test_l2_basic"
+
+#    - name: copy conftest
+#      run: cp usecases/sai-ptf/ptf-conftest.py usecases/sai-ptf/SAI/ptf/conftest.py 
+#    - name: copy patch
+#      run: cp usecases/sai-ptf/patches/sai-base-test-fix-for-saivs.patch usecases/sai-ptf/SAI/ 
+#    - name: patching
+#      run: cd usecases/sai-ptf/SAI/ && patch -p0 < sai-base-test-fix-for-saivs.patch && cd -
+#    - name: build docker image
+#      run: ./build.sh -s thrift
+#    - name: run image
+#      run: ./run.sh -s thrift
+#    - name: exec 
+#      run: docker exec  sc-thrift-trident2-saivs-run bash
+##   - name: setup tmate session
+##     uses: mxschmitt/action-tmate@v3
+#    - name: sleep
+#      run: sleep 60s 
+#    - name: test
+#      run: docker exec sc-thrift-trident2-saivs-run pytest --testbed=saivs_thrift_standalone -k "access_to_access" -v
+#    - name: test2
+#      run: docker exec sc-thrift-trident2-saivs-run pytest --testbed=saivs_thrift_standalone ../usecases/sai-ptf/SAI/ptf/saifdb.py -k FdbAttributeTest -v
+

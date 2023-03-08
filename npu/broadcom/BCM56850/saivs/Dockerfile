@@ -35,10 +35,10 @@ RUN git clone https://github.com/sonic-net/sonic-sairedis.git \
         && dpkg -i libsaivs_1.0.0_amd64.deb \
         && dpkg -i libsaivs-dev_1.0.0_amd64.deb \
         && dpkg -i syncd-vs_1.0.0_amd64.deb \
-        && mv sonic-sairedis/tests . \
-        && rm -f *.deb \
-        && rm -rf sonic-sairedis/* \
-        && mv tests sonic-sairedis/
+        && mv sonic-sairedis/tests . 
+#        && rm -f *.deb \
+#        && rm -rf sonic-sairedis/* \
+#        && mv tests sonic-sairedis/
 
 # Build SAI attributes metadata JSON generator and generate /etc/sai/sai.json
 RUN cd /sai/gen_attr_list \
