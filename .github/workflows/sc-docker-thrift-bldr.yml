@@ -1,6 +1,5 @@
 name: sc-docker-thrift-bldr
 
-
 on:
   push:
     branches: [ "**" ]

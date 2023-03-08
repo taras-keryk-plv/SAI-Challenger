@@ -37,8 +37,7 @@ on:
       - '.dockerignore'
   workflow_dispatch:
   
-jobs:
- 
+jobs: 
   build-sc-client-thrift:
     name: Build SAI Challenger client thrift image
     runs-on: ubuntu-20.04
