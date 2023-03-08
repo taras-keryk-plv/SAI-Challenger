@@ -1,7 +1,11 @@
 name: sc-docker-client-bldr
 
-
 on:
+  push:
+    branches: [ "**" ]
+    paths:
+      - '.github/workflows/sc-docker-client-bldr.yml'
+      - 'dockerfiles/Dockerfile.client'
   pull_request:
     branches: [ "**" ]
     paths:
@@ -10,8 +14,8 @@ on:
   workflow_dispatch:
   
 jobs:
-  
   build-sc-client-thrift:
+    if: ${{ github.event_name == 'pull_request' }}
     name: Build SAI Challenger client thrift image
     runs-on: ubuntu-20.04
     steps:
