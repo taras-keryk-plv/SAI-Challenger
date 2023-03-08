@@ -38,7 +38,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  
+ 
   build-sc-client-thrift:
     name: Build SAI Challenger client thrift image
     runs-on: ubuntu-20.04
