@@ -1,12 +1,6 @@
 name: sc-docker-thrift-bldr
 
 on:
-#  push:
-#    branches: [ "**" ]
-#    paths:
-#      - '.github/workflows/sc-docker-thrift-bldr.yml'
-#      - 'dockerfiles/Dockerfile.saithrift-client'
-#      - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
   pull_request:
     branches: [ "**" ]
     paths:
