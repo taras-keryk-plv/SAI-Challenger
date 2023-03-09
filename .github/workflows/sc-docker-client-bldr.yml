@@ -1,11 +1,11 @@
 name: sc-docker-client-bldr
 
 on:
-  push:
-    branches: [ "**" ]
-    paths:
-      - '.github/workflows/sc-docker-client-bldr.yml'
-      - 'dockerfiles/Dockerfile.client'
+#  push:
+#    branches: [ "**" ]
+#    paths:
+#      - '.github/workflows/sc-docker-client-bldr.yml'
+#      - 'dockerfiles/Dockerfile.client'
   pull_request:
     branches: [ "**" ]
     paths:

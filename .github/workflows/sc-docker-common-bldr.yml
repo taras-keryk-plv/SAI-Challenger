@@ -1,20 +1,20 @@
 name: sc-docker-common-bldr
 
 on:
-  push:
-    branches: [ "**" ]
-    paths:
-      - '.github/workflows/sc-docker-common-bldr.yml'
-      - 'dockerfiles/Dockerfile'
-      - 'npu/broadcom/trident2/saivs/Dockerfile'
-      - 'common/'
-      - 'builds/'
-      - 'cli/'
-      - 'scripts/'
-      - 'configs/'
-      - 'setup.py'
-      - 'build.sh'
-      - '.dockerignore'
+#  push:
+#    branches: [ "**" ]
+#    paths:
+#      - '.github/workflows/sc-docker-common-bldr.yml'
+#      - 'dockerfiles/Dockerfile'
+#      - 'npu/broadcom/trident2/saivs/Dockerfile'
+#      - 'common/'
+#      - 'builds/'
+#      - 'cli/'
+#      - 'scripts/'
+#      - 'configs/'
+#      - 'setup.py'
+#      - 'build.sh'
+#      - '.dockerignore'
   pull_request:
     branches: [ "**" ]
     paths:
