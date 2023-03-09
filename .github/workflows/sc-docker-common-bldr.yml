@@ -7,9 +7,6 @@ on:
       - '.github/workflows/sc-docker-common-bldr.yml'
       - 'dockerfiles/Dockerfile'
       - 'npu/broadcom/trident2/saivs/Dockerfile'
-      - 'npu/intel/tofino2/model/Dockerfile'
-      - 'npu/intel/tofino/model/Dockerfile'
-      - 'usecases/pins/Dockerfile'
       - 'common/'
       - 'builds/'
       - 'cli/'
@@ -24,9 +21,6 @@ on:
       - '.github/workflows/sc-docker-common-bldr.yml'
       - 'dockerfiles/Dockerfile'
       - 'npu/broadcom/trident2/saivs/Dockerfile'
-      - 'npu/intel/tofino2/model/Dockerfile'
-      - 'npu/intel/tofino/model/Dockerfile'
-      - 'usecases/pins/Dockerfile'
       - 'common/'
       - 'builds/'
       - 'cli/'
@@ -35,7 +29,6 @@ on:
       - 'setup.py'
       - 'build.sh'
       - '.dockerignore'
-  workflow_dispatch:
   
 jobs:
   

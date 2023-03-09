@@ -7,19 +7,12 @@ on:
       - '.github/workflows/sc-docker-server-bldr.yml'
       - 'dockerfiles/Dockerfile.server'
       - 'npu/broadcom/trident2/saivs/Dockerfile.server'
-      - 'npu/intel/tofino2/model/Dockerfile.server'
-      - 'npu/intel/tofino/montara/Dockerfile.server'
-      - 'npu/intel/tofino/model/Dockerfile.server'
   pull_request:
     branches: [ "**" ]
     paths:
       - '.github/workflows/sc-docker-server-bldr.yml'
       - 'dockerfiles/Dockerfile.server'
       - 'npu/broadcom/trident2/saivs/Dockerfile.server'
-      - 'npu/intel/tofino2/model/Dockerfile.server'
-      - 'npu/intel/tofino/montara/Dockerfile.server'
-      - 'npu/intel/tofino/model/Dockerfile.server'
-  workflow_dispatch:
   
 jobs:   
   build-sc-server:

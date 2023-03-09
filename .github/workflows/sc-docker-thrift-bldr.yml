@@ -13,7 +13,6 @@ on:
       - '.github/workflows/sc-docker-thrift-bldr.yml'
       - 'dockerfiles/Dockerfile.saithrift-client'
       - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
-  workflow_dispatch:
   
 jobs: 
   build-sc-client-thrift:
