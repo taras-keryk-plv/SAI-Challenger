@@ -1,5 +1,6 @@
 name: sc-docker-client-bldr
 
+
 on:
 #  push:
 #    branches: [ "**" ]
@@ -11,7 +12,8 @@ on:
     paths:
       - '.github/workflows/sc-docker-client-bldr.yml'
       - 'dockerfiles/Dockerfile.client'
-  
+  workflow_dispatch:
+
 jobs: 
   build-sc-client-thrift:
     name: Build SAI Challenger client thrift image
