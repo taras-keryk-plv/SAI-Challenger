@@ -9,7 +9,7 @@ from saichallenger.common.sai_data import SaiObjType, SaiData
 
 class SaiRedisClient(SaiClient):
     """Redis SAI client implementation to wrap low level SAI calls"""
-    attempts = 40
+    attempts = 60
 
     def __init__(self, cfg):
         self.config = cfg

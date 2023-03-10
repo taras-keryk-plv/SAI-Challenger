@@ -28,5 +28,11 @@ jobs:
       run: git submodule update --init
     - name: build standalone docker image
       run: ./build.sh -i standalone
-    - name: build standalone docker thrift image
-      run: ./build.sh -i standalone -s thrift
+    - name: run docker image
+      run: ./run.sh -a trident2 -t saivs 
+    - name: setup tmate session
+      uses: mxschmitt/action-tmate@v3
+    - name: sleep
+      run: sleep 60s
+    - name: run tests
+      run: ./exec.sh -t saivs pytest --testbed=saivs_standalone -v -k "test_l2_basic"
