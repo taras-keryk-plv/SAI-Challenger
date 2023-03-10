@@ -7,8 +7,8 @@ on:
     paths:
       - '.github/workflows/sc-docker-standalone-bldr.yml'
       - 'dockerfiles/Dockerfile'
-      - 'npu/broadcom/trident2/saivs/Dockerfile'
-      - 'npu/broadcom/trident2/saivs/Dockerfile.saithrift'
+      - 'npu/broadcom/BCM56850/saivs/Dockerfile'
+      - 'npu/broadcom/BCM56850/saivs/Dockerfile.saithrift'
       - 'common/'
       - 'builds/'
       - 'cli/'
@@ -35,4 +35,4 @@ jobs:
     - name: sleep
       run: sleep 10s
     - name: run tests
-      run: ./exec.sh -t saivs pytest --testbed=saivs_standalone -v -k "test_l2_basic"
+      run: ./exec.sh -t saivs pytest --testbed=saivs_standalone -v -k "test_l2_basic" 2>&1
