@@ -30,9 +30,9 @@ jobs:
       run: ./build.sh -i standalone
     - name: run docker image
       run: ./run.sh -a trident2 -t saivs 
-    - name: setup tmate session
-      uses: mxschmitt/action-tmate@v3
+#    - name: setup tmate session
+#      uses: mxschmitt/action-tmate@v3
     - name: sleep
-      run: sleep 60s
+      run: sleep 10s
     - name: run tests
       run: ./exec.sh -t saivs pytest --testbed=saivs_standalone -v -k "test_l2_basic"
