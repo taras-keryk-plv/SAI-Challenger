@@ -14,6 +14,7 @@ on:
       - 'cli/'
       - 'scripts/'
       - 'configs/'
+      - 'tests/'
       - 'setup.py'
       - 'build.sh'
       - '.dockerignore'
@@ -37,7 +38,15 @@ jobs:
     - name: Run sairedis tests
       run: ./exec.sh --no-tty pytest --testbed=saivs_standalone -v -k "test_sairec"
     - name: Run unit tests
-      run: ./exec.sh --no-tty pytest --testbed=saivs_standalone -v -k "test_acl_ut" -k "test_bridge_ut" -k "test_switch_ut" \
-        && ./exec.sh --no-tty pytest --testbed=saivs_standalone -v -k "test_vrf_ut"
+      run:  docker exec sc-trident2-saivs-run pytest --testbed=saivs_standalone -v -k \
+            "test_acl_ut or test_bridge_ut or test_switch_ut or test_vrf_ut or test_port_ut.py"
     - name: Build standalone docker image with SAI thrift
       run: ./build.sh -i standalone -s thrift
+    - name: Start SAI-C in standalone thrift mode
+      run: ./run.sh -i standalone -s thrift
+    - name: Run thrift tests
+      run: docker exec sc-thrift-trident2-saivs-run pytest --testbed=saivs_thrift_standalone \
+           ../usecases/sai-ptf/SAI/ptf/saifdb.py -k FdbAttributeTest -v 
+    - name: Run thrift tests
+      run: docker exec sc-thrift-trident2-saivs-run pytest --testbed=saivs_thrift_standalone \
+           -k "access_to_access" -v
