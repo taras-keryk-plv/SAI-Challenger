@@ -38,15 +38,21 @@ jobs:
     - name: Run sairedis tests
       run: ./exec.sh --no-tty pytest --testbed=saivs_standalone -v -k "test_sairec"
     - name: Run unit tests
-      run:  docker exec sc-trident2-saivs-run pytest --testbed=saivs_standalone -v -k \
-            "test_acl_ut or test_bridge_ut or test_switch_ut or test_vrf_ut or test_port_ut.py"
+      run: ./exec.sh --no-tty pytest  --testbed=saivs_standalone -v -k \
+           "test_acl_ut or test_bridge_ut or test_switch_ut or test_vrf_ut or test_port_ut.py"
+    - name: Setup the environment for thrift  
+      run: cp usecases/sai-ptf/ptf-conftest.py usecases/sai-ptf/SAI/ptf/conftest.py 
+    - name: Copy patch for PTF base test
+      run: cp usecases/sai-ptf/patches/sai-base-test-fix-for-saivs.patch usecases/sai-ptf/SAI/
+    - name: Apply patch  
+      run: cd usecases/sai-ptf/SAI/ && patch -p0 < sai-base-test-fix-for-saivs.patch && cd -
     - name: Build standalone docker image with SAI thrift
       run: ./build.sh -i standalone -s thrift
+    - name: Wait for SAI-C services to come up
+      run: sleep 10s
     - name: Start SAI-C in standalone thrift mode
       run: ./run.sh -i standalone -s thrift
     - name: Run thrift tests
-      run: docker exec sc-thrift-trident2-saivs-run pytest --testbed=saivs_thrift_standalone \
-           ../usecases/sai-ptf/SAI/ptf/saifdb.py -k FdbAttributeTest -v 
-    - name: Run thrift tests
-      run: docker exec sc-thrift-trident2-saivs-run pytest --testbed=saivs_thrift_standalone \
-           -k "access_to_access" -v
+      run: ./exec.sh --no-tty pytest -s thrift  --testbed=saivs_thrift_standalone -v -k "access_to_access"
+    - name: Run PTF tests
+      run: ./exec.sh --no-tty pytest -s thrift  --testbed=saivs_thrift_standalone  ../usecases/sai-ptf/SAI/ptf/saifdb.py -k FdbAttributeTest -v
