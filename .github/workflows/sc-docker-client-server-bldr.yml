@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps: 
     - name: gen file
-      run: dd if=/dev/zero of=testfile bs=1024k count=100
+      run: dd if=/dev/zero of=testfile bs=1024k count=3000
     - name: Upload for job
       uses: actions/upload-artifact@v3
       with:
@@ -55,6 +55,7 @@ jobs:
 
   test-file-dst:
     name: test dst
+    needs: test-file-src
     runs-on: ubuntu-20.04
     steps:
     - name: Download from job
