@@ -19,24 +19,51 @@ on:
       - '.dockerignore'
 
 jobs: 
-  build-sc-server:
-    name: Build SAI Challenger server image
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Update submodules
-      run: git submodule update --init
-    - name: Build server docker image
-      run: ./build.sh -i server
+#  build-sc-server:
+#    name: Build SAI Challenger server image
+#    runs-on: ubuntu-20.04
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Update submodules
+#      run: git submodule update --init
+#    - name: Build server docker image
+#      run: ./build.sh -i server
 
-  build-sc-client:
-    name: Build SAI Challenger client image
+#  build-sc-client:
+#    name: Build SAI Challenger client image
+#    runs-on: ubuntu-20.04
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Update submodules
+#      run: git submodule update --init
+#    - name: Build client docker image
+#      run: ./build.sh -i client
+#    - name: Build client docker image with SAI thrift
+#      run: ./build.sh -i client -s thrift
+
+  test-file-src:
+    name: test src
+    runs-on: ubuntu-20.04
+    steps: 
+    - name: gen file
+      run: dd if=/dev/zero of=testfile bs=1024k count=100
+    - name: Upload for job
+      uses: actions/upload-artifact@v3
+      with:
+        name: file
+        path: testfile
+
+  test-file-dst:
+    name: test dst
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - name: Update submodules
-      run: git submodule update --init
-    - name: Build client docker image
-      run: ./build.sh -i client
-    - name: Build client docker image with SAI thrift
-      run: ./build.sh -i client -s thrift
+    - name: Download from job
+      uses: actions/download-artifact@v3
+      with:
+        name: file
+    - name: 
+      shell: bash
+      run: |
+        value=`du -sh testfile`
+        echo The result is $value
+
