@@ -29,66 +29,66 @@ jobs:
   #   - name: Build server docker image
   #     run: ./build.sh -i server
 
-  build-sc-client:
-    name: Build SAI Challenger client image
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Update submodules
-      run: git submodule update --init
-    - name: Build client docker image
-      run: ./build.sh -i client
-    - name: Build client docker image with SAI thrift
-      run: ./build.sh -i client -s thrift
-    - name: Save docker image
-      run: docker save sc-client > sc-client.tar
-    - name: Upload docker image for run-sc-tests job
-      uses: actions/upload-artifact@v3
-      with:
-        name: Client Image
-        path: sc-client.tar
-
-  run-sc-tests:
-    name: Build SAI Challenger client
-    needs: build-sc-client
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Update submodules
-      run: git submodule update --init
-    - name: Download docker image from build-sc-client job 
-      uses: actions/download-artifact@v3
-      with:
-        name: Client Image
-    - name: Load Client Image
-      run: docker load < sc-client.tar
-    - name: Start SAI-C client 
-      run: ./run.sh -i client
-
-  # test-file-src:
-  #   name: test src
-  #   runs-on: ubuntu-20.04
-  #   steps: 
-  #   - name: gen file
-  #     run: dd if=/dev/zero of=testfile bs=1024k count=3000
-  #   - name: Upload for job
-  #     uses: actions/upload-artifact@v3
-  #     with:
-  #       name: file
-  #       path: testfile
-
-  # test-file-dst:
-  #   name: test dst
-  #   needs: test-file-src
+  # build-sc-client:
+  #   name: Build SAI Challenger client image
   #   runs-on: ubuntu-20.04
   #   steps:
-  #   - name: Download from job
+  #   - uses: actions/checkout@v3
+  #   - name: Update submodules
+  #     run: git submodule update --init
+  #   - name: Build client docker image
+  #     run: ./build.sh -i client
+  #   - name: Build client docker image with SAI thrift
+  #     run: ./build.sh -i client -s thrift
+  #   - name: Save docker image
+  #     run: docker save sc-client > sc-client.tar
+  #   - name: Upload docker image for run-sc-tests job
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: Client Image
+  #       path: sc-client.tar
+
+  # run-sc-tests:
+  #   name: Build SAI Challenger client
+  #   needs: build-sc-client
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Update submodules
+  #     run: git submodule update --init
+  #   - name: Download docker image from build-sc-client job 
   #     uses: actions/download-artifact@v3
   #     with:
-  #       name: file
-  #   - name: 
-  #     shell: bash
-  #     run: |
-  #       value=`du -sh testfile`
-  #       echo The result is $value
+  #       name: Client Image
+  #   - name: Load Client Image
+  #     run: docker load < sc-client.tar
+  #   - name: Start SAI-C client 
+  #     run: ./run.sh -i client
+
+  test-file-src:
+    name: test src
+    runs-on: ubuntu-20.04
+    steps: 
+    - name: gen file
+      run: dd if=/dev/zero of=testfile bs=1024k count=10000
+    - name: Upload for job
+      uses: actions/upload-artifact@v3
+      with:
+        name: file
+        path: testfile
+
+  test-file-dst:
+    name: test dst
+    needs: test-file-src
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Download from job
+      uses: actions/download-artifact@v3
+      with:
+        name: file
+    - name: 
+      shell: bash
+      run: |
+        value=`du -sh testfile`
+        echo The result is $value
 
