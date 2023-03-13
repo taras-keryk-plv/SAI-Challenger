@@ -65,30 +65,52 @@ jobs:
   #   - name: Start SAI-C client 
   #     run: ./run.sh -i client
 
-  test-file-src:
+  test-file-src1:
     name: test src
     runs-on: ubuntu-20.04
     steps: 
     - name: gen file
-      run: dd if=/dev/zero of=testfile bs=1024k count=10000
+      run: dd if=/dev/zero of=testfile3 bs=1024k count=100
     - name: Upload for job
       uses: actions/upload-artifact@v3
       with:
-        name: file
-        path: testfile
+        path: testfile3
+
+  test-file-src2:
+    name: test src
+    runs-on: ubuntu-20.04
+    steps: 
+    - name: gen file
+      run: dd if=/dev/zero of=testfile2 bs=1024k count=1
+    - name: Upload for job
+      uses: actions/upload-artifact@v3
+      with:
+        path: testfile2
 
   test-file-dst:
     name: test dst
-    needs: test-file-src
+    needs: [test-file-src1, test-file-src2] 
     runs-on: ubuntu-20.04
     steps:
-    - name: Download from job
-      uses: actions/download-artifact@v3
+    - uses: actions/checkout@v3
+    - uses: actions/download-artifact@v3
       with:
-        name: file
+        path: TK/
     - name: 
       shell: bash
-      run: |
-        value=`du -sh testfile`
+      run: 
+        value=`find -name testfile1`
         echo The result is $value
-
+    - name: 
+      shell: bash
+      run: 
+        value=`find -name testfile2`
+        echo The result is $value
+    - name: 
+      shell: bash
+      run: 
+        value=`find -name testfile3`
+        echo The result is $value
+    - uses: actions/checkout@v3
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
