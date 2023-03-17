@@ -176,3 +176,12 @@ class SaiThriftClient(SaiClient):
         # TODO define
         ...
 
+    def flush_fdb_entries(self, obj, attrs=None):
+        obj_type, oid, key = self.obj_to_items(obj)
+        obj_type_name = self.get_object_type(oid, default=SAI_OBJECT_TYPE_FDB_FLUSH).name.lower()
+        #key=None
+        object_key = ThriftConverter.convert_key_to_thrift(obj_type_name, key)
+        object_key[f'{obj_type_name}_oid'] = oid
+        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs)) #SAI-Challenger/common/sai_client/sai_thrift_client/sai_thrift_metadata.py
+        sai_thrift_function = getattr(sai_adapter, 'sai_thrift_flush_fdb_entries')
+        result = sai_thrift_function(self.thrift_client, **object_key, **attr_kwargs)

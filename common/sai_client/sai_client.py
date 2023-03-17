@@ -54,10 +54,6 @@ class SaiClient:
     def clear_stats(self, obj, attrs, do_assert=True):
         raise NotImplementedError
 
-    # Flush FDB
-    def flush_fdb_entries(self, obj, attrs=None):
-        raise NotImplementedError
-
     # BULK
     def bulk_create(self, obj, keys, attrs, do_assert=True):
         raise NotImplementedError
