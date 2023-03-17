@@ -5,9 +5,11 @@ from saichallenger.common.sai_client.sai_client import SaiClient
 from saichallenger.common.sai_client.sai_thrift_client.sai_thrift_utils import *
 from saichallenger.common.sai_data import SaiData
 from saichallenger.common.sai_data import SaiObjType
-from sai_thrift import sai_rpc, sai_adapter
+from sai_thrift import sai_rpc, sai_adapter  
+from sai_thrift.sai_adapter import sai_thrift_flush_fdb_entries
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import TSocket, TTransport
+
 
 
 class SaiThriftClient(SaiClient):
@@ -178,10 +180,22 @@ class SaiThriftClient(SaiClient):
 
     def flush_fdb_entries(self, obj, attrs=None):
         obj_type, oid, key = self.obj_to_items(obj)
-        obj_type_name = self.get_object_type(oid, default=SAI_OBJECT_TYPE_FDB_FLUSH).name.lower()
-        #key=None
         object_key = ThriftConverter.convert_key_to_thrift(obj_type_name, key)
-        object_key[f'{obj_type_name}_oid'] = oid
-        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs)) #SAI-Challenger/common/sai_client/sai_thrift_client/sai_thrift_metadata.py
-        sai_thrift_function = getattr(sai_adapter, 'sai_thrift_flush_fdb_entries')
-        result = sai_thrift_function(self.thrift_client, **object_key, **attr_kwargs)
+        print("==TK== obj_type={}, oid={}, key={}".format(obj_type, oid, key))
+        #obj_type_name = self.get_object_type(oid, default=SAI_OBJECT_TYPE_FDB_FLUSH).name.lower()
+        ##key=None
+        #object_key = ThriftConverter.convert_key_to_thrift(obj_type_name, key)
+        #object_key[f'{obj_type_name}_oid'] = oid
+        #attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs)) #SAI-Challenger/common/sai_client/sai_thrift_client/sai_thrift_metadata.py
+        #sai_thrift_function = getattr(sai_adapter, 'sai_thrift_flush_fdb_entries')
+        #result = sai_thrift_function(self.thrift_client, **object_key, **attr_kwargs)
+
+
+        # sai_thrift_status_t sai_thrift_flush_fdb_entries(const std::vector<sai_thrift_attribute_t> & thrift_attr_list)
+        #
+        #def sai_thrift_flush_fdb_entries(client,
+        #                         bridge_port_id=None,
+        #                         bv_id=None,
+        #                         entry_type=None):
+
+        #sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
