@@ -292,3 +292,9 @@ class ThriftConverter():
         elif isinstance(status, int):
             name = SaiStatus(status).name
         return 'SAI_STATUS_' + name
+
+    @staticmethod
+    def convert_attrs_to_dict(attrs):
+        keys=attrs[::2]
+        values=attrs[1::2]
+        return dict(zip(keys,values))

@@ -11,7 +11,6 @@ from thrift.protocol import TBinaryProtocol
 from thrift.transport import TSocket, TTransport
 
 
-
 class SaiThriftClient(SaiClient):
     """Thrift SAI client implementation to wrap low level SAI calls"""
 
@@ -179,23 +178,17 @@ class SaiThriftClient(SaiClient):
         ...
 
     def flush_fdb_entries(self, obj, attrs=None):
-        obj_type, oid, key = self.obj_to_items(obj)
-        object_key = ThriftConverter.convert_key_to_thrift(obj_type_name, key)
-        print("==TK== obj_type={}, oid={}, key={}".format(obj_type, oid, key))
-        #obj_type_name = self.get_object_type(oid, default=SAI_OBJECT_TYPE_FDB_FLUSH).name.lower()
-        ##key=None
-        #object_key = ThriftConverter.convert_key_to_thrift(obj_type_name, key)
-        #object_key[f'{obj_type_name}_oid'] = oid
-        #attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs)) #SAI-Challenger/common/sai_client/sai_thrift_client/sai_thrift_metadata.py
-        #sai_thrift_function = getattr(sai_adapter, 'sai_thrift_flush_fdb_entries')
-        #result = sai_thrift_function(self.thrift_client, **object_key, **attr_kwargs)
+        #NOTE: This API does not remove the entries from @objects_registry
 
-
-        # sai_thrift_status_t sai_thrift_flush_fdb_entries(const std::vector<sai_thrift_attribute_t> & thrift_attr_list)
-        #
-        #def sai_thrift_flush_fdb_entries(client,
-        #                         bridge_port_id=None,
-        #                         bv_id=None,
-        #                         entry_type=None):
-
-        #sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=SAI_FDB_FLUSH_ENTRY_TYPE_ALL)
+        attrs_dict = ThriftConverter.convert_attrs_to_dict(attrs)
+        type = attrs_dict['SAI_FDB_FLUSH_ATTR_ENTRY_TYPE']
+        if 'SAI_FDB_FLUSH_ATTR_BV_ID' in attrs_dict:
+            bvid = attrs_dict['SAI_FDB_FLUSH_ATTR_BV_ID']
+            bvid_v = bvid[4:]
+            bvid_val = int(bvid_v,16)
+            sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=type, bv_id=bvid_val)
+        elif 'SAI_FDB_FLUSH_ATTR_BRIDGE_PORT_ID' in attrs_dict:
+            bpid = attrs_dict['SAI_FDB_FLUSH_ATTR_BRIDGE_PORT_ID']
+            sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=type, bridge_port_id=bpid)
+        else:
+            sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=type)
