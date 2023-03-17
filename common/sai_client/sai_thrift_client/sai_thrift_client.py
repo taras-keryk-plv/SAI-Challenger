@@ -5,8 +5,7 @@ from saichallenger.common.sai_client.sai_client import SaiClient
 from saichallenger.common.sai_client.sai_thrift_client.sai_thrift_utils import *
 from saichallenger.common.sai_data import SaiData
 from saichallenger.common.sai_data import SaiObjType
-from sai_thrift import sai_rpc, sai_adapter  
-from sai_thrift.sai_adapter import sai_thrift_flush_fdb_entries
+from sai_thrift import sai_rpc, sai_adapter
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import TSocket, TTransport
 
@@ -178,17 +177,5 @@ class SaiThriftClient(SaiClient):
         ...
 
     def flush_fdb_entries(self, obj, attrs=None):
-        #NOTE: This API does not remove the entries from @objects_registry
-
-        attrs_dict = ThriftConverter.convert_attrs_to_dict(attrs)
-        type = attrs_dict['SAI_FDB_FLUSH_ATTR_ENTRY_TYPE']
-        if 'SAI_FDB_FLUSH_ATTR_BV_ID' in attrs_dict:
-            bvid = attrs_dict['SAI_FDB_FLUSH_ATTR_BV_ID']
-            bvid_v = bvid[4:]
-            bvid_val = int(bvid_v,16)
-            sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=type, bv_id=bvid_val)
-        elif 'SAI_FDB_FLUSH_ATTR_BRIDGE_PORT_ID' in attrs_dict:
-            bpid = attrs_dict['SAI_FDB_FLUSH_ATTR_BRIDGE_PORT_ID']
-            sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=type, bridge_port_id=bpid)
-        else:
-            sai_thrift_flush_fdb_entries(self.thrift_client, entry_type=type)
+        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs))
+        result = sai_adapter.sai_thrift_flush_fdb_entries(self.thrift_client, **attr_kwargs)

@@ -48,4 +48,6 @@ jobs:
     - name: Wait for SAI-C services to come up
       run: sleep 10s
     - name: Run thrift tests
-      run: ./exec.sh --no-tty -s thrift pytest --testbed=saivs_thrift_standalone -v -k "access_to_access"
+      run: ./exec.sh --no-tty -s thrift pytest --testbed=saivs_thrift_standalone -v -k \
+           "access_to_access or trunk_to_trunk_vlan or access_to_trunk_vlan or trunk_to_access_vlan \
+            or test_l2_ and not fdb_bulk"
