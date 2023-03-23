@@ -1,8 +1,28 @@
 import ipaddress
 import pytest
 import time
+import functools
 from saichallenger.common.sai_data import SaiObjType
 from ptf.testutils import simple_tcp_packet, send_packet, verify_packets, verify_packet, verify_no_packet_any, verify_no_packet, verify_any_packet_any_port
+
+class CmdHistory:
+    cmd_history = list()
+    
+    def __init__(self, pu):
+        self.pu = pu
+
+    def process_command(self, cmd):
+        ret = self.pu.command_processor.process_command(cmd)
+        if 'create' in cmd['op']:
+            cmd['op']='remove'
+            self.cmd_history.append(cmd)
+        return ret
+
+    def remove_all(self):
+        for cmd in reversed(self.cmd_history):
+            res = self.pu.command_processor.process_command(cmd)
+            assert res == "SAI_STATUS_SUCCESS"
+
 
 def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
     """
@@ -15,6 +35,7 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
     #4. Send a simple vlan tag (10) packet on port 1 and verify packet on port 2
     #5. Clean up configuration
     """
+    cmd_history = CmdHistory(npu)
     vlan_id = "10"
     macs = ['00:11:11:11:11:11', '00:22:22:22:22:22']
 
@@ -26,7 +47,8 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
                     "SAI_VLAN_ATTR_VLAN_ID", vlan_id
                 ]
     }
-    vlan_oid = npu.command_processor.process_command(create_vlan)
+    
+    vlan_oid = cmd_history.process_command(create_vlan)
     create_vlan_member1 = {
                 "name": "vlan_member1",
                 "op": "create",
@@ -37,7 +59,7 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
                     "SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE", "SAI_VLAN_TAGGING_MODE_TAGGED"
                 ]
     }
-    npu.command_processor.process_command(create_vlan_member1)
+    cmd_history.process_command(create_vlan_member1)
     create_vlan_member2 = {
                 "name": "vlan_member2",
                 "op": "create",
@@ -48,7 +70,7 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
                     "SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE", "SAI_VLAN_TAGGING_MODE_TAGGED"
                 ]
     }
-    npu.command_processor.process_command(create_vlan_member2)
+    cmd_history.process_command(create_vlan_member2)
     create_fdb1 = {
                 "name": "fdb1",
                 "op": "create",
@@ -64,7 +86,7 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
                     "SAI_FDB_ENTRY_ATTR_PACKET_ACTION", "SAI_PACKET_ACTION_FORWARD"
                 ]
     }
-    npu.command_processor.process_command(create_fdb1)
+    cmd_history.process_command(create_fdb1)
     create_fdb2 = {
                 "name": "fdb2",
                 "op": "create",
@@ -80,7 +102,7 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
                     "SAI_FDB_ENTRY_ATTR_PACKET_ACTION", "SAI_PACKET_ACTION_FORWARD"
                 ]
     }
-    npu.command_processor.process_command(create_fdb2)
+    cmd_history.process_command(create_fdb2)
 
     try:
         if npu.run_traffic:
@@ -95,38 +117,4 @@ def test_l2_trunk_to_trunk_vlan_dd(npu, dataplane):
             send_packet(dataplane, 0, pkt)
             verify_packets(dataplane, pkt, [1])
     finally:
-        remove_fdb2 = {
-                "name": "fdb2",
-                "op": "remove",
-                "type": "SAI_OBJECT_TYPE_FDB_ENTRY"
-        }
-        res = npu.command_processor.process_command(remove_fdb2)
-        assert res == "SAI_STATUS_SUCCESS"
-        remove_fdb1 = {
-                "name": "fdb1",
-                "op": "remove",
-                "type": "SAI_OBJECT_TYPE_FDB_ENTRY"
-        }
-        res = npu.command_processor.process_command(remove_fdb1)
-        assert res == "SAI_STATUS_SUCCESS"
-        remove_vlan_member2 = {
-                "name": "vlan_member2",
-                "op": "remove",
-                "type": "SAI_OBJECT_TYPE_VLAN_MEMBER"
-        }
-        res = npu.command_processor.process_command(remove_vlan_member2)
-        assert res == "SAI_STATUS_SUCCESS"
-        remove_vlan_member1 = {
-                "name": "vlan_member1",
-                "op": "remove",
-                "type": "SAI_OBJECT_TYPE_VLAN_MEMBER"
-        }
-        res = npu.command_processor.process_command(remove_vlan_member1)
-        assert res == "SAI_STATUS_SUCCESS"
-        remove_vlan = {
-                "name": "vlan_10",
-                "op": "remove",
-                "type": "SAI_OBJECT_TYPE_VLAN"
-        }
-        res = npu.command_processor.process_command(remove_vlan)
-        assert res == "SAI_STATUS_SUCCESS"
+        cmd_history.remove_all()
