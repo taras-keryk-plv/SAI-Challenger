@@ -125,6 +125,14 @@ class SaiRedisClient(SaiClient):
         if type(obj) == SaiObjType:
             vid = self.alloc_vid(obj)
             obj = "SAI_OBJECT_TYPE_" + obj.name + ":" + vid
+        elif type(obj) == str:
+            if "bv_id" in obj:
+                obj = obj.replace("bv_id", "bvid")
+                obj = obj.replace("mac_address", "mac")
+            if obj.startswith("SAI_OBJECT_TYPE_") and ":{" not in obj:
+                vid = self.alloc_vid(SaiObjType[obj.lstrip("SAI_OBJECT_TYPE_")])
+                #vid = self.alloc_vid_s(obj)
+                obj = obj + ":" + vid
         else:
             # NOTE: The sai_deserialize_route_entry() from sonic-sairedis does not tolerate
             # spaces in the route entry key:
@@ -148,6 +156,10 @@ class SaiRedisClient(SaiClient):
             obj = self.vid_to_type(obj) + ":" + obj
         assert obj.startswith("SAI_OBJECT_TYPE_")
         obj = obj.replace(" ", "")
+        if type(obj) == str:
+            if "bv_id" in obj:
+                obj = obj.replace("bv_id", "bvid")
+                obj = obj.replace("mac_address", "mac")
 
         status = self.operate(obj, "{}", "Dremove")
         status[2] = status[2].decode("utf-8")
@@ -670,6 +682,20 @@ class SaiRedisClient(SaiClient):
         if vid is None:
             vid = self.r.incr("VIDCOUNTER")
         return "oid:" + hex((obj_type.value << 48) | vid)
+
+    def alloc_vid_s(self, obj_type):
+        vid = None
+        if "SAI_OBJECT_TYPE" in obj_type:
+            if self.r.get("VIDCOUNTER") is None:
+                self.r.set("VIDCOUNTER", 0)
+                vid = 0
+            if vid is None:
+                vid = self.r.incr("VIDCOUNTER")
+            obj_type = obj_type.replace("SAI_OBJECT_TYPE_", "")
+            sai_obj_type_dct = {i.name: i.value for i in SaiObjType}
+            sai_obj_val = sai_obj_type_dct[obj_type]
+            return "oid:" + hex((sai_obj_val << 48) | vid)
+        return "oid:0x0"
 
     def vid_to_rid(self, vid):
         assert vid.startswith("oid:"), f"Invalid VID format {vid}"
