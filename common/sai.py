@@ -175,8 +175,18 @@ class Sai():
         self.create_alias('SWITCH_ID', 'SAI_OBJECT_TYPE_SWITCH', value)
         self._switch_oid = value
 
-    def process_commands(self, commands):
-        yield from map(self.command_processor.process_command, commands)
+    def process_commands(self, commands, cleanup=False):
+        if cleanup is False:
+            yield from map(self.command_processor.process_command, commands)
+            for command in commands:
+                for arg in list(command):
+                    if arg == 'op' or arg == 'name' or arg == 'key':
+                        continue
+                    else:
+                        del command[arg]
+                command['op'] = 'remove'
+        else:
+            yield from map(self.command_processor.process_command, reversed(commands))
 
     def apply_rec(self, fname):
         dut = self.cfg.get("dut", None)
