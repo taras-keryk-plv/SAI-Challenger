@@ -176,15 +176,17 @@ class Sai():
         self._switch_oid = value
 
     def process_commands(self, commands, cleanup=False):
-        _commands = []
-        if cleanup:
-            for command in reversed(commands):
-                if command['op'] in ['create', 'remove']:
-                    _commands.append(command.copy())
-                    _commands[-1]['op'] = 'remove'
+        if cleanup is False:
+            yield from map(self.command_processor.process_command, commands)
+            for command in commands:
+                for arg in list(command):
+                    if arg == 'op' or arg == 'name' or arg == 'key':
+                        continue
+                    else:
+                        del command[arg]
+                command['op'] = 'remove'
         else:
-            _commands = commands.copy()
-        yield from map(process_command, _commands)
+            yield from map(self.command_processor.process_command, reversed(commands))
 
     def apply_rec(self, fname):
         dut = self.cfg.get("dut", None)
