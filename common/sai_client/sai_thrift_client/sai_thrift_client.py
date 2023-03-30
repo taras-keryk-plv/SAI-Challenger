@@ -122,6 +122,7 @@ class SaiThriftClient(SaiClient):
         return SaiObjType(0)
 
     def _operate(self, operation, attrs=(), oid=None, obj_type=None, key=None):
+        print(f"===TK=operate  operation={operation}, attrs={attrs}, oid={oid}, obj_type={obj_type}, key={key}")
         if oid is not None and key is not None:
             raise ValueError('Both OID and key are specified')
 
@@ -137,6 +138,7 @@ class SaiThriftClient(SaiClient):
         attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs))
 
         result = sai_thrift_function(self.thrift_client, **object_key, **attr_kwargs)
+        print (f"===TK===  object_key = {object_key}, attr_kwargs={attr_kwargs}")
         status = ThriftConverter.convert_to_sai_status_str(sai_adapter.status)
         if status == 'SAI_STATUS_SUCCESS':
             result = key if key is not None else result

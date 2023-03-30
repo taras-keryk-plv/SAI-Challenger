@@ -60,6 +60,7 @@ class ThriftConverter():
 
     @staticmethod
     def convert_value_to_thrift(value, value_type):
+        print(f"===TK-new=====value={value}, value_type={value_type}")
         """
         "100", "s32" => 100
         """
@@ -85,6 +86,16 @@ class ThriftConverter():
         if value_type in [ 'objlist' ]:
             return ThriftConverter.sai_object_list(value)
         if value_type in [ 'u8list', 'u16list', 'u32list', 's8list', 's16list', 's32list' ]:
+            t = type(value)
+            print(f"===TK===type={t}")
+            if isinstance(value, str):
+                print("===TK7====")
+                #actual_value = getattr(sai_headers, value, None)
+                meta = self.get_meta(sai_obj_type)
+                #get_obj_values(sai_obj_type)
+                print(f"===TK====actual_value={actual_value} ")
+                if actual_value != None:
+                    value = actual_value
             return ThriftConverter.sai_int_list(value_type, value)
         if value_type in [ 'u32range' , 's32range', 'u16range' ]:
             return ThriftConverter.sai_int_range(value_type, value)
