@@ -290,14 +290,6 @@ class Sai():
         if meta is None:
             return []
         return [(attr['name'], attr['properties']['type']) for attr in meta['attributes']]
-    
-    @staticmethod
-    def get_obj_values(sai_obj_type):
-        meta = Sai.get_meta(sai_obj_type)
-        return 1;
-        #if meta is None:
-        #    return []
-        #return [(values['name'], attr['properties']['type']) for attr in meta['attributes']]
 
     @staticmethod
     def get_obj_attr_type(sai_obj_type, sai_obj_attr):

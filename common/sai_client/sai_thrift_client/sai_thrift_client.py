@@ -122,7 +122,6 @@ class SaiThriftClient(SaiClient):
         return SaiObjType(0)
 
     def _operate(self, operation, attrs=(), oid=None, obj_type=None, key=None):
-        print(f"===TK=operate  operation={operation}, attrs={attrs}, oid={oid}, obj_type={obj_type}, key={key}")
         if oid is not None and key is not None:
             raise ValueError('Both OID and key are specified')
 
@@ -135,10 +134,9 @@ class SaiThriftClient(SaiClient):
             object_key[f'{obj_type_name}_oid'] = oid
         sai_thrift_function = getattr(sai_adapter, f'sai_thrift_{operation}_{obj_type_name}')
 
-        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs))
+        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs, obj_type))
 
         result = sai_thrift_function(self.thrift_client, **object_key, **attr_kwargs)
-        print (f"===TK===  object_key = {object_key}, attr_kwargs={attr_kwargs}")
         status = ThriftConverter.convert_to_sai_status_str(sai_adapter.status)
         if status == 'SAI_STATUS_SUCCESS':
             result = key if key is not None else result
@@ -159,7 +157,7 @@ class SaiThriftClient(SaiClient):
 
         result = []
 
-        for attr, value in ThriftConverter.convert_attributes_to_thrift(attrs):
+        for attr, value in ThriftConverter.convert_attributes_to_thrift(attrs, obj_type):
             if obj_type_name != "switch":
                 object_key = {obj_type_name + "_oid": oid}
 
@@ -170,7 +168,7 @@ class SaiThriftClient(SaiClient):
                 status = ThriftConverter.convert_to_sai_status_str(thrift_attr_value)
             else:
                 status = ThriftConverter.convert_to_sai_status_str(sai_adapter.status)
-                result.extend(ThriftConverter.convert_attributes_from_thrift(thrift_attr_value))
+                result.extend(ThriftConverter.convert_attributes_from_thrift(thrift_attr_value, attr, obj_type))
 
         return status, result
 
@@ -194,7 +192,8 @@ class SaiThriftClient(SaiClient):
         self.thrift_client = sai_rpc.Client(protocol)
 
     def flush_fdb_entries(self, obj, attrs=None):
-        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs))
+        obj_type, _, _ = self.obj_to_items(obj)
+        attr_kwargs = dict(ThriftConverter.convert_attributes_to_thrift(attrs,obj_type))
         result = sai_adapter.sai_thrift_flush_fdb_entries(self.thrift_client, **attr_kwargs)
 
     def bulk_create(self, obj, keys, attrs, do_assert=True):
