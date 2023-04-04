@@ -11,12 +11,12 @@ from saichallenger.common.sai_data import SaiObjType, SaiStatus
 
 
 class ThriftConverter():
-    def convert_attributes_to_thrift(attributes, obj_type):
+    def convert_attributes_to_thrift(attributes):
         """
         [ "SAI_SWITCH_ATTR_PORT_LIST", "2:oid:0x0,oid:0x0" ] => { "port_list": sai_thrift_object_list_t(count=2, idlist=[0x0, 0x0]) }
         """
         for name, value in ThriftConverter.chunks(attributes, 2):
-            yield ThriftConverter.convert_attribute_name_to_thrift(name), ThriftConverter.convert_value_to_thrift(value, ThriftConverter.get_attribute_type(name), name, obj_type)
+            yield ThriftConverter.convert_attribute_name_to_thrift(name), ThriftConverter.convert_value_to_thrift(value, ThriftConverter.get_attribute_type(name))
 
     def convert_key_to_thrift(object_type, key = None):
         """
@@ -45,7 +45,6 @@ class ThriftConverter():
             if not name.startswith('SAI'):
                 continue
             result_attrs.append(name)
-            #result_attrs.append(ThriftConverter.convert_value_from_thrift(value, ThriftConverter.get_attribute_type(name)))
             result_attrs.append(ThriftConverter.convert_value_from_thrift(value, ThriftConverter.get_attribute_type(name), attr_name, obj_type))
 
         return result_attrs
@@ -60,7 +59,7 @@ class ThriftConverter():
         return re.search('SAI_.*_ATTR_(.*)', attr).group(1).lower()
 
     @staticmethod
-    def convert_value_to_thrift(value, value_type, attr_name=None, obj_type=None):
+    def convert_value_to_thrift(value, value_type):
         """
         "100", "s32" => 100
         """
@@ -72,10 +71,6 @@ class ThriftConverter():
                 actual_value = getattr(sai_headers, value, None)
                 if actual_value != None:
                     return actual_value
-                #else:
-                #    actual_value = ThriftConverter.get_str_by_enum(obj_type, attr_name, value)
-                #    if actual_value != None:
-                #        return actual_value
             return 0 if value == '' else int(value)
         if value_type in [ 'booldata' ]:
             return value.lower() == "true" or value == "0"
@@ -90,7 +85,7 @@ class ThriftConverter():
         if value_type in [ 'objlist' ]:
             return ThriftConverter.sai_object_list(value)
         if value_type in [ 'u8list', 'u16list', 'u32list', 's8list', 's16list', 's32list' ]:
-            return ThriftConverter.sai_int_list(value_type, value, attr_name, obj_type)
+            return ThriftConverter.sai_int_list(value_type, value)
         if value_type in [ 'u32range' , 's32range', 'u16range' ]:
             return ThriftConverter.sai_int_range(value_type, value)
         if value_type in [ 'maplist' ]:
@@ -137,7 +132,7 @@ class ThriftConverter():
         return sai_thrift_object_list_t(count=count, idlist=idlist)
 
     @staticmethod
-    def sai_int_list(value_type, value_data, attr_name, obj_type):
+    def sai_int_list(value_type, value_data):
         """
         "4:1,2,3,4" => sai_thrift_{type}_list_t(count=4, {type}list=[1,2,3,4])
         """
@@ -257,8 +252,10 @@ class ThriftConverter():
                            'chardata' ]:
             return str(value)
         elif value_type in [ 's32' ]:
-            actual_value = ThriftConverter.get_enum_by_str(obj_type, attr_name, value)
-            return str(actual_value)
+            actual_value = ThriftConverter.get_str_by_enum(obj_type, attr_name, value)
+            if actual_value != None:
+                return actual_value
+            return str(value)
         elif value_type in [ 'booldata' ]:
             return str(value).lower()
         elif value_type in [ 'objlist' ]:
@@ -301,6 +298,8 @@ class ThriftConverter():
             result += str(listvar[ii])
             result += ","
         return result[:-1]
+
+# AUXILARY
 
     @staticmethod
     def chunks(iterable, n, fillvalue=None):
@@ -351,59 +350,38 @@ class ThriftConverter():
 
     @staticmethod
     def get_sai_meta(obj_type, attr_name):
-        """Get enum member value by enum member name"""
+        """Get SAI meta data by SAI object type and attribute name"""
         try:
             with open("/etc/sai/sai.json", "r") as f:
                 sai_json = json.loads(f.read())
         except IOError:
             return None
-        if obj_type is not None:
-            if type(obj_type) == SaiObjType:
-                obj_type = "SAI_OBJECT_TYPE_" + SaiObjType(obj_type).name
-            else:
-                assert type(obj_type) == str
-                assert obj_type.startswith("SAI_OBJECT_TYPE_")
-            for item in sai_json:
-                if obj_type not in item.values(): continue
-                attrs = item.get('attributes')
-                for attr in attrs:
-                    if attr_name == attr.get('name'):
-                        return attr
-        return sai_json
 
-    def get_str_by_enum(obj_type, attr_name, enum_name):
-        """Get enum member value by enum member name"""
-        attr = ThriftConverter.get_sai_meta(obj_type, attr_name)
-        if attr is None:
-            return None
-        try:
-            return attr['properties']['values'][enum_name]
-        except KeyError:
-            return None
+        if type(obj_type) == SaiObjType:
+            obj_type = "SAI_OBJECT_TYPE_" + SaiObjType(obj_type).name
+        else:
+            assert type(obj_type) == str
+            assert obj_type.startswith("SAI_OBJECT_TYPE_")
+
+        for item in sai_json:
+            if obj_type not in item.values(): continue
+            attrs = item.get('attributes')
+            for attr in attrs:
+                attr_name = attr_name.upper()
+                if attr_name in attr.get('name'):
+                    return attr
+        return None
 
     @staticmethod
-    def get_enum_by_str(obj_type, attr_name, enum_value):
+    def get_str_by_enum(obj_type, attr_name, enum_value):
+        """Get enum member str name by enum member value"""
         meta = ThriftConverter.get_sai_meta(obj_type, attr_name)
         if meta is None:
             return None
-        if obj_type:
-            try:
-                values = meta['properties']['values']
-                enum_name = [k for k, v in values.items() if v == enum_value]
-                if enum_name:
-                    return enum_name[0]
-            except KeyError:
-                pass
-        else:
-            attr_name = 'SAI_' + attr_name.upper()
-            for attrs in meta:
-                attr = attrs.get('attributes')
-                for item in attr:
-                    try:
-                        val = item['properties']['values']
-                        if attr_name in str(val):
-                            enum_name = [k for k, v in val.items() if v == enum_value]
-                            return enum_name[0]
-                    except KeyError:
-                        pass
+        if meta['properties'].get('values') == None:
+            return str(enum_value)
+        for k, v in meta['properties']['values'].items():
+            if v == enum_value:
+                return k
+
         return None
