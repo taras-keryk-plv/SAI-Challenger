@@ -11,12 +11,12 @@ from saichallenger.common.sai_data import SaiObjType, SaiStatus
 
 
 class ThriftConverter():
-    def convert_attributes_to_thrift(attributes):
+    def convert_attributes_to_thrift(attributes, obj_type):
         """
         [ "SAI_SWITCH_ATTR_PORT_LIST", "2:oid:0x0,oid:0x0" ] => { "port_list": sai_thrift_object_list_t(count=2, idlist=[0x0, 0x0]) }
         """
         for name, value in ThriftConverter.chunks(attributes, 2):
-            yield ThriftConverter.convert_attribute_name_to_thrift(name), ThriftConverter.convert_value_to_thrift(value, ThriftConverter.get_attribute_type(name))
+            yield ThriftConverter.convert_attribute_name_to_thrift(name), ThriftConverter.convert_value_to_thrift(value, ThriftConverter.get_attribute_type(name), name, obj_type)
 
     def convert_key_to_thrift(object_type, key = None):
         """
@@ -35,7 +35,7 @@ class ThriftConverter():
             del key['dest']
         return { object_type: key_t(**ThriftConverter.convert_key_values_to_thrift(object_type, key)) }
 
-    def convert_attributes_from_thrift(attributes):
+    def convert_attributes_from_thrift(attributes, attr_name, obj_type):
         """
         TODO:
         [ ("SAI_SWITCH_ATTR_PORT_LIST", sai_thrift_object_list_t(...)), ("port_list", sai_thrift_object_list_t(...)) ] => [ "SAI_SWITCH_ATTR_PORT_LIST", "2:0x0,0x0" }
@@ -45,7 +45,7 @@ class ThriftConverter():
             if not name.startswith('SAI'):
                 continue
             result_attrs.append(name)
-            result_attrs.append(ThriftConverter.convert_value_from_thrift(value, ThriftConverter.get_attribute_type(name)))
+            result_attrs.append(ThriftConverter.convert_value_from_thrift(value, ThriftConverter.get_attribute_type(name), attr_name, obj_type))
 
         return result_attrs
 
@@ -59,7 +59,7 @@ class ThriftConverter():
         return re.search('SAI_.*_ATTR_(.*)', attr).group(1).lower()
 
     @staticmethod
-    def convert_value_to_thrift(value, value_type):
+    def convert_value_to_thrift(value, value_type, attr_name=None, obj_type=None):
         """
         "100", "s32" => 100
         """
@@ -85,7 +85,7 @@ class ThriftConverter():
         if value_type in [ 'objlist' ]:
             return ThriftConverter.sai_object_list(value)
         if value_type in [ 'u8list', 'u16list', 'u32list', 's8list', 's16list', 's32list' ]:
-            return ThriftConverter.sai_int_list(value_type, value)
+            return ThriftConverter.sai_int_list(value_type, value, attr_name, obj_type)
         if value_type in [ 'u32range' , 's32range', 'u16range' ]:
             return ThriftConverter.sai_int_range(value_type, value)
         if value_type in [ 'maplist' ]:
@@ -132,7 +132,7 @@ class ThriftConverter():
         return sai_thrift_object_list_t(count=count, idlist=idlist)
 
     @staticmethod
-    def sai_int_list(value_type, value_data):
+    def sai_int_list(value_type, value_data, attr_name, obj_type):
         """
         "4:1,2,3,4" => sai_thrift_{type}_list_t(count=4, {type}list=[1,2,3,4])
         """
@@ -223,7 +223,6 @@ class ThriftConverter():
         return int(oid)
 
     # CONVERT FROM THRIFT
-
     @staticmethod
     def get_value_type_by_thrift_spec(thrift_spec):
         """
@@ -243,15 +242,18 @@ class ThriftConverter():
         assert True, "Should not get here"
 
     @staticmethod
-    def convert_value_from_thrift(value, value_type):
+    def convert_value_from_thrift(value, value_type, attr_name=None, obj_type=None):
         """
         sai_thrift_ip_address_t('192.168.0.1'...), "ipaddr" => "192.168.0.1"
         """
         if value_type in [ 's8', 'u8', 's16', 'u16',
-                           's32', 'u32', 's64', 'u64',
+                           'u32', 's64', 'u64',
                            'ptr', 'mac', 'ipv4', 'ipv6',
                            'chardata' ]:
             return str(value)
+        elif value_type in [ 's32' ]:
+            actual_value = ThriftConverter.get_str_by_enum(obj_type, attr_name, value)
+            return str(actual_value)
         elif value_type in [ 'booldata' ]:
             return str(value).lower()
         elif value_type in [ 'objlist' ]:
@@ -343,3 +345,95 @@ class ThriftConverter():
         elif isinstance(status, int):
             name = SaiStatus(status).name
         return 'SAI_STATUS_' + name
+
+    ""
+    @staticmethod
+    def get_sai_meta(obj_type, attr_name):
+        """Get enum member value by enum member name"""
+        print(f"====TKBB===== obj_type={obj_type}, attr_name={attr_name}")
+        try:
+            with open("/etc/sai/sai.json", "r") as f:
+                sai_json = json.loads(f.read())
+        except IOError:
+            return None
+
+        if type(obj_type) == SaiObjType:
+            print("===TKB===")
+            obj_type = "SAI_OBJECT_TYPE_" + SaiObjType(obj_type).name
+        else:
+            print("===TKC===")
+            assert type(obj_type) == str
+            assert obj_type.startswith("SAI_OBJECT_TYPE_")
+        
+        for item in sai_json:
+            if obj_type not in item.values(): continue
+            
+            print("===TKD===")
+            attrs = item.get('attributes')
+            
+            for attr in attrs:
+                attr_name = attr_name.upper()
+                print(f"===TKF=== obj_type={obj_type}  attr_name={attr_name} == n={attr.get('name')}")
+                if attr_name in attr.get('name'):
+                    print(f"===TKJ===attr={attr}")
+                    return attr
+        return None
+
+    def get_enum_by_str(obj_type, attr_name, enum_name):
+        """Get enum member value by enum member name"""
+        return getattr(sai_headers, enum_name, None)
+        #attr = ThriftConverter.get_sai_meta(obj_type, attr_name)
+        #if attr is None:
+        #    return None
+        #try:
+        #    return attr['properties']['values'][enum_name]
+        #except KeyError:
+        #    return None
+
+    @staticmethod
+    def get_str_by_enum(obj_type, attr_name, enum_value):
+        print(f"===TK3=== obj_type={obj_type}, attr_name={attr_name}, enum_value={enum_value}")
+        meta = ThriftConverter.get_sai_meta(obj_type, attr_name)
+        #meta = ThriftConverter.get_sai_meta(obj_type, "SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE")
+        
+        
+        if meta is None:
+            print("===TK3A===")
+            return None
+
+        if meta['properties'].get('values') == None:
+            print(f"===TK4=== meta={meta['properties'].get('values')}")
+            return str(enum_value)
+        for k, v in meta['properties']['values'].items():
+            print(f"===TK5=== k={k}, v={v}")
+            if v == enum_value:
+                return k
+        
+        return None
+    
+    # @staticmethod
+    # def get_str_by_enum(obj_type, attr_name, enum_value):
+    #     meta = ThriftConverter.get_sai_meta(obj_type, attr_name)
+    #     if meta is None:
+    #         return None
+    #     if obj_type:
+    #         try:
+    #             values = meta['properties']['values']
+    #             enum_name = [k for k, v in values.items() if v == enum_value]
+    #             if enum_name:
+    #                 return enum_name[0]
+    #         except KeyError:
+    #             pass
+    #     else:
+    #         attr_name = 'SAI_' + attr_name.upper()
+    #         for attrs in meta:
+    #             attr = attrs.get('attributes')
+    #             for item in attr:
+    #                 try:
+    #                     val = item['properties']['values']
+    #                     if attr_name in str(val):
+    #                         enum_name = [k for k, v in val.items() if v == enum_value]
+    #                         return enum_name[0]
+    #                 except KeyError:
+    #                     pass
+    #     return None
