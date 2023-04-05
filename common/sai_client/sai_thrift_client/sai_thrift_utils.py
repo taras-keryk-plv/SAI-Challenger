@@ -138,7 +138,7 @@ class ThriftConverter():
         """
         splitted = value_data.split(':', 1)
         count = int(splitted[0])
-        thrift_list = [ int(item) for item in splitted[1].split(',') ]
+        thrift_list = [ ThriftConverter.int_list(item) for item in splitted[1].split(',') ]
         sai_thrift_class = getattr(ttypes, 'sai_thrift_{}_list_t'.format(value_type[:-4]))
         return sai_thrift_class(count, thrift_list)
 
@@ -221,6 +221,16 @@ class ThriftConverter():
         #        We need this temporary workaround to handle the issue
         #        described in get_value_type_by_thrift_spec()
         return int(oid)
+
+    @staticmethod
+    def int_list(item):
+        """ Get enum from item value or return int """
+        val = item
+        if isinstance(item, str) and 'SAI' in item:
+            values = ThriftConverter.get_enum_by_str(item)
+            if values is not None:
+                val = values
+        return int(val)
 
     # CONVERT FROM THRIFT
     @staticmethod
@@ -385,3 +395,8 @@ class ThriftConverter():
                 return k
 
         return None
+
+    @staticmethod
+    def get_enum_by_str(enum_name):
+        """Get enum member value by enum member name"""
+        return getattr(sai_headers, enum_name, None)
