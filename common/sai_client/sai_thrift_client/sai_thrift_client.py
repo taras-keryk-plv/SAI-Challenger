@@ -100,6 +100,9 @@ class SaiThriftClient(SaiClient):
                 return "SAI_STATUS_BUFFER_OVERFLOW", SaiData('["", "128"]')
             if attrs[0].startswith('SAI_SWITCH_ATTR_ACL_STAGE'):
                 return "SAI_STATUS_BUFFER_OVERFLOW", SaiData('["", "false:512:0"]')
+            if attrs[0] == "SAI_SWITCH_ATTR_AVAILABLE_ACL_TABLE":
+                d = """ ["SAI_SWITCH_ATTR_AVAILABLE_ACL_TABLE",  {"count":10,"list":null}] """
+                return "SAI_STATUS_BUFFER_OVERFLOW", SaiData(str(d))
             return status, None
         try:
             result = json.dumps(raw_result)
@@ -176,14 +179,12 @@ class SaiThriftClient(SaiClient):
                 object_key = {obj_type_name + "_oid": oid}
 
             thrift_attr_value = sai_thrift_function(self.thrift_client, **object_key, **{attr: value})
-
             if operation == 'set':
                 # No need to have a list here, since set always takes only one attribute at a time
                 status = ThriftConverter.convert_to_sai_status_str(thrift_attr_value)
             else:
                 status = ThriftConverter.convert_to_sai_status_str(sai_adapter.status)
                 result.extend(ThriftConverter.convert_attributes_from_thrift(thrift_attr_value, obj_type))
-
         return status, result
 
     def cleanup(self):

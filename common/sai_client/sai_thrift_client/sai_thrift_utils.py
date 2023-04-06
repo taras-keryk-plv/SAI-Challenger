@@ -92,6 +92,8 @@ class ThriftConverter():
             return ThriftConverter.sai_map_list(value)
         if value_type in [ 'aclcapability' ]:
             return ThriftConverter.sai_acl_capability(value)
+        if value_type in [ 'aclresource' ]:
+            return ThriftConverter.sai_acl_resource(value)
 
         # TODO: add more string->thrift converters here
         raise NotImplementedError(f"{value_type}, {value}")
@@ -173,6 +175,21 @@ class ThriftConverter():
         splitted = value.split(':', 1)
         thrift_list = ThriftConverter.sai_int_list('s32list', splitted[1])
         return sai_thrift_acl_capability_t(is_action_list_mandatory=splitted[0], action_list=thrift_list)
+
+    @staticmethod
+    def sai_acl_resource(value):
+        """
+        {"count":1,"list":[{"avail_num":"","bind_point":"","stage":""}]} =>
+            sai_thrift_acl_resource_t()
+        """
+        val = json.loads(value)
+        resourcelist = []
+        for entry in val["list"]:
+            stage = int(entry["stage"] or 0)
+            bind_point = int(entry["bind_point"] or 0)
+            avail_num = int(entry["avail_num"] or 0)
+            resourcelist.append(sai_thrift_acl_resource_t(stage=stage, bind_point=bind_point, avail_num=avail_num))
+        return sai_thrift_acl_resource_list_t(count=val["count"], resourcelist=resourcelist)
 
     @staticmethod
     def sai_ipaddress(addr_str):
@@ -284,6 +301,8 @@ class ThriftConverter():
             raise NotImplementedError(f"{value_type}, {value}")
         elif value_type in [ 'aclcapability' ]:
             return ThriftConverter.from_sai_acl_capability(value_type, value, attr_name, obj_type)
+        elif value_type in [ 'aclresource' ]:
+            return ThriftConverter.from_sai_acl_resource(value_type, value, attr_name, obj_type)
 
         # TODO: Add more thrift->string convertes here
         raise NotImplementedError(f"{value_type}, {value}")
@@ -327,6 +346,9 @@ class ThriftConverter():
         action_list = getattr(object_list, 'action_list')
         listvar = ThriftConverter.from_sai_int_list('s32list', action_list)
         return f'{is_action_list_mandatory}'.lower() + ':' + listvar
+
+    def from_sai_acl_resource(value_type, value, attr_name, obj_type):
+        raise NotImplementedError(f"{value_type}, {value}")
 
 # AUXILARY
 
