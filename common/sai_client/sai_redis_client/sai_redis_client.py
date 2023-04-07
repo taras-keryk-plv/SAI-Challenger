@@ -177,6 +177,7 @@ class SaiRedisClient(SaiClient):
         return status[2]
 
     def get(self, obj, attrs, do_assert=True):
+        print(f"===TK11===obj={obj} attrs={attrs}")
         if obj.startswith("oid:"):
             assert self.vid_to_rid(obj), f"Unable to retrieve RID by VID {obj}"
             obj = self.vid_to_type(obj) + ":" + obj

@@ -167,6 +167,7 @@ class SaiData:
         return self.data
 
     def to_json(self):
+        print(f"===TK12===, {self.data}")
         return json.loads(self.data)
 
     def oid(self, idx=1):
