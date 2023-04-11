@@ -227,9 +227,19 @@ class ThriftConverter():
         if generic_type == 'ip4':
             # value 192.168.0.8&mask:255.255.255.255
             ipaddr = value.split("&")[0]
-            mask = value.split(":")[1]
+            mask = value.split("mask:")[1]
             attribute_value = sai_thrift_attribute_value_t(aclfield=sai_thrift_acl_field_data_t(data=sai_thrift_acl_field_data_data_t(ip4=ipaddr),
                                                                                                 mask=sai_thrift_acl_field_data_mask_t(ip4=mask)))
+        elif generic_type == 'ip6':
+            ipaddr = value.split("&")[0]
+            mask = value.split("mask:")[1]
+            attribute_value = sai_thrift_attribute_value_t(aclfield=sai_thrift_acl_field_data_t(data=sai_thrift_acl_field_data_data_t(ip6=ipaddr),
+                                                                                                mask=sai_thrift_acl_field_data_mask_t(ip6=mask)))
+        elif generic_type == 'mac':
+            ipaddr = value.split("&")[0]
+            mask = value.split("mask:")[1]
+            attribute_value = sai_thrift_attribute_value_t(aclfield=sai_thrift_acl_field_data_t(data=sai_thrift_acl_field_data_data_t(mac=ipaddr),
+                                                                                                mask=sai_thrift_acl_field_data_mask_t(mac=mask)))
         # u8, u16, u32
         elif generic_type[0] == 'u':
             # value 2048&mask:0xffff
