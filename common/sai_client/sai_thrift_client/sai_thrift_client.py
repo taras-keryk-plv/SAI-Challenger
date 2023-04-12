@@ -185,9 +185,10 @@ class SaiThriftClient(SaiClient):
             # E.g., 1000x_sgmii_slave_autodetect
             if attr[0].isdigit():
                 attr = '_' + attr
-
-            thrift_attr_value = sai_thrift_function(self.thrift_client, **object_key, **{attr: value})
-
+            try:
+                thrift_attr_value = sai_thrift_function(self.thrift_client, **object_key, **{attr: value})
+            except:
+                thrift_attr_value = SaiStatus['FAILURE']
             if operation == 'set':
                 # No need to have a list here, since set always takes only one attribute at a time
                 status = ThriftConverter.convert_to_sai_status_str(thrift_attr_value)
