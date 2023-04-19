@@ -43,7 +43,8 @@ RUN apt-get install -y \
         uuid-dev libboost-serialization-dev libyang-dev libyang0.16
 
 RUN apt-get install -y \
-        libnl-3-dev libnl-genl-3-dev libnl-route-3-dev libnl-nf-3-dev libzmq3-dev
+        libnl-3-dev libnl-genl-3-dev libnl-route-3-dev libnl-nf-3-dev libzmq3-dev \
+        libjansson-dev
 
 COPY sai.env /
 RUN git clone --recursive https://github.com/sonic-net/sonic-swss-common \
@@ -57,6 +58,16 @@ RUN git clone --recursive https://github.com/sonic-net/sonic-swss-common \
         && dpkg -i libswsscommon-dev_1.0.0_amd64.deb \
         && rm -rf sonic-swss-common \
         && rm -f *swsscommon*
+
+RUN git clone https://github.com/sonic-net/sonic-swss.git \
+        && cd sonic-swss \
+        && ./autogen.sh \
+        && ./configure \
+        && cd gearsyncd \
+        && make \
+        && make install \
+        && make && make install \
+        && cd ..
 
 WORKDIR /sai
 
@@ -131,3 +142,10 @@ COPY scripts/redis_start.sh    /usr/bin/redis_start.sh
 COPY configs/supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
 
 CMD ["/usr/bin/supervisord"]
+
+# Gearbox configs
+COPY configs/gearbox/gearbox_config.json       /usr/share/sonic/hwsku/gearbox_config.json
+COPY configs/gearbox/phy1_config_1.json        /usr/share/sonic/hwsku/phy1_config_1.json
+COPY configs/gearbox/context_config.json       /usr/share/sonic/hwsku/context_config.json
+COPY configs/gearbox/pai.profile               /etc/sai.d/pai.profile
+COPY configs/gearbox/start.sh                  /usr/bin/start.sh
