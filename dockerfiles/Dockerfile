@@ -59,15 +59,15 @@ RUN git clone --recursive https://github.com/sonic-net/sonic-swss-common \
         && rm -rf sonic-swss-common \
         && rm -f *swsscommon*
 
-RUN git clone https://github.com/sonic-net/sonic-swss.git \
-        && cd sonic-swss \
-        && ./autogen.sh \
-        && ./configure \
-        && cd gearsyncd \
-        && make \
-        && make install \
-        && make && make install \
-        && cd ..
+# RUN git clone https://github.com/sonic-net/sonic-swss.git \
+#         && cd sonic-swss \
+#         && ./autogen.sh \
+#         && ./configure \
+#         && cd gearsyncd \
+#         && make \
+#         && make install \
+#         && make && make install \
+#         && cd ..
 
 WORKDIR /sai
 
@@ -144,8 +144,5 @@ COPY configs/supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord"]
 
 # Gearbox configs
-COPY configs/gearbox/gearbox_config.json       /usr/share/sonic/hwsku/gearbox_config.json
-COPY configs/gearbox/phy1_config_1.json        /usr/share/sonic/hwsku/phy1_config_1.json
 COPY configs/gearbox/context_config.json       /usr/share/sonic/hwsku/context_config.json
 COPY configs/gearbox/pai.profile               /etc/sai.d/pai.profile
-COPY configs/gearbox/start.sh                  /usr/bin/start.sh
