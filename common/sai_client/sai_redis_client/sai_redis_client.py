@@ -114,6 +114,7 @@ class SaiRedisClient(SaiClient):
             attempts -= 1
             status = self.r.lrange("GETRESPONSE_KEY_VALUE_OP_QUEUE", 0, -1)
 
+        print(f"==TK15==obj={obj}, attrs={attrs}, op={op}, status={status}")
         self.r.delete("GETRESPONSE_KEY_VALUE_OP_QUEUE")
 
         assert len(status) == 3, "SAI \"{}\" operation failure!".format(op)
