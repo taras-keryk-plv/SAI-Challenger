@@ -49,9 +49,9 @@ RUN cd /sai/gen_attr_list \
         && rm /etc/sai/sai.json.tmp
 
 # Setup supervisord
-COPY configs/pai.profile       /etc/sai.d/pai.profile
-COPY configs/lanemap.ini       /usr/share/sonic/hwsku/lanemap.inihist
-COPY configs/supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
+COPY configs/pai.profile               /etc/sai.d/pai.profile
+COPY configs/context_config.json       /usr/share/sonic/hwsku/context_config.json
+COPY configs/supervisord.conf          /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /sai-challenger/tests
 

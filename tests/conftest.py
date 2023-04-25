@@ -102,6 +102,7 @@ def npu(exec_params, testbed_instance):
         npu.reset()
     return npu
 
+
 @pytest.fixture(scope="session")
 def dpu(exec_params, testbed_instance):
     if testbed_instance is not None:
