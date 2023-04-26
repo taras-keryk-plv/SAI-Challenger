@@ -50,6 +50,7 @@ RUN cd /sai/gen_attr_list \
 
 # Setup supervisord
 COPY configs/sai.profile       /etc/sai.d/sai.profile
+COPY configs/pai.profile       /etc/sai.d/pai.profile
 COPY configs/lanemap.ini       /usr/share/sonic/hwsku/lanemap.ini
 COPY configs/supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
 
