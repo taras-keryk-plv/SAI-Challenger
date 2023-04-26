@@ -104,7 +104,7 @@ print-build-options() {
     echo " ASIC name          : ${ASIC_TYPE}"
     echo " ASIC target        : ${TARGET}"
     echo " Platform path      : ${ASIC_PATH}"
-    echo " SAI interface      : ${SAI_INTERFACE}"     
+    echo " SAI interface      : ${SAI_INTERFACE}"
     echo
     echo "==========================================="
     echo
@@ -125,6 +125,10 @@ else
     if [ "${SAI_INTERFACE}" = "thrift" ]; then
         docker build -f dockerfiles/Dockerfile.saithrift-client -t sc-thrift-client .
     fi
+fi
+
+if [[ ${ASIC_PATH} =~ "./phy/" ]]; then
+        ASIC_TYPE+="-phy"
 fi
 
 # Build target Docker image
