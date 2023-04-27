@@ -15,6 +15,7 @@ TARGET=""
 OPTS=""
 COMMAND="start"
 SAI_INTERFACE="redis"
+SYNCD_PROFILE="/etc/sai.d/sai.profile"
 
 print-help() {
     echo
@@ -74,6 +75,10 @@ while [[ $# -gt 0 ]]; do
             SAI_INTERFACE="$2"
             shift
         ;;
+        "--phy")
+            SYNCD_PROFILE="/etc/sai.d/pai.profile"
+        ;;
+
     esac
     shift
 done
@@ -153,6 +158,7 @@ if [ "${COMMAND}" = "start" ]; then
     if [ "${IMAGE_TYPE}" = "standalone" ]; then
         IMG_NAME=$(echo "${PREFIX}-${ASIC_TYPE}-${TARGET}" | tr '[:upper:]' '[:lower:]')
         docker run --name ${IMG_NAME}-run \
+            -e SYNCD_PROFILE=${SYNCD_PROFILE} \
             -v $(pwd):/sai-challenger \
             --cap-add=NET_ADMIN \
             ${OPTS} \
