@@ -88,6 +88,11 @@ def npu(exec_params, testbed_instance):
     if testbed_instance is not None:
         if len(testbed_instance.npu) == 1:
             return testbed_instance.npu[0]
+        elif len(testbed_instance.dpu) == 1:
+            return testbed_instance.dpu[0]
+        elif len(testbed_instance.phy) == 1:
+            testbed_instance.npu = testbed_instance.phy
+            return testbed_instance.phy[0]
         return None
 
     npu = None
@@ -95,51 +100,14 @@ def npu(exec_params, testbed_instance):
 
     if exec_params["asic"] == "generic":
         npu = SaiNpu(exec_params)
+    elif exec_params["asic"] == "BCM81724":
+        npu = SaiPhy(exec_params)
     else:
         npu = SaiTestbed.spawn_asic(f"{curdir}/..", exec_params, "npu")
 
     if npu is not None:
         npu.reset()
     return npu
-
-
-@pytest.fixture(scope="session")
-def dpu(exec_params, testbed_instance):
-    if testbed_instance is not None:
-        if len(testbed_instance.dpu) == 1:
-            return testbed_instance.dpu[0]
-        return None
-
-    dpu = None
-    exec_params["asic_dir"] = None
-
-    if exec_params["asic"] == "generic":
-        dpu = SaiDpu(exec_params)
-    else:
-        dpu = SaiTestbed.spawn_asic(f"{curdir}/..", exec_params, "dpu")
-
-    if dpu is not None:
-        dpu.reset()
-    return dpu
-
-@pytest.fixture(scope="session")
-def phy(exec_params, testbed_instance):
-    if testbed_instance is not None:
-        if len(testbed_instance.phy) == 1:
-            return testbed_instance.phy[0]
-        return None
-
-    phy = None
-    exec_params["asic_dir"] = None
-
-    if exec_params["asic"] == "generic":
-        phy = SaiPhy(exec_params)
-    else:
-        phy = SaiTestbed.spawn_asic(f"{curdir}/..", exec_params, "phy")
-
-    if phy is not None:
-        phy.reset()
-    return phy
 
 @pytest.fixture(scope="session")
 def dataplane_instance(exec_params, testbed_instance):

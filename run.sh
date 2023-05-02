@@ -132,10 +132,6 @@ print-start-options() {
 
 trap print-start-options EXIT
 
-if [[ ${ASIC_PATH} =~ "./phy/" ]]; then
-        ASIC_TYPE+="-phy"
-fi
-
 stop_docker_container() {
     DOCKER_NAME=$1
     PID=$(docker inspect --format '{{ .State.Pid }}' $DOCKER_NAME)

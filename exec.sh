@@ -154,11 +154,6 @@ print-start-options() {
 
 trap print-start-options EXIT
 
-echo ${ASIC_PATH}
-if [[ ${ASIC_PATH} =~ "./phy/" ]]; then
-        ASIC_TYPE+="-phy"
-fi
-
 if [ "${SAI_INTERFACE}" = "thrift" ]; then
     PREFIX="sc-thrift"
 else

@@ -64,5 +64,5 @@ jobs:
     - name: Wait for SAI-C services to come up
       run: sleep 10s
     - name: Run thrift PHY unit tests for PHY BCM81724
-      run: ./exec.sh --no-tty -a BCM81724 -t saivs -s thrift pytest --testbed=saivs_thrift_standalone_phy -v ut/test_phy_switch_ut.py ut/test_phy_port_ut.py -k \
+      run: ./exec.sh --no-tty -a BCM81724 -t saivs -s thrift pytest --testbed=saivs_thrift_standalone_phy -v ut/test_switch_ut.py ut/test_port_ut.py -k \
            "not PFC_TC_ and not SAI_SWITCH_ATTR_SYSTEM_PORT_CONFIG_LIST"
