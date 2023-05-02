@@ -34,18 +34,9 @@
       {"alias": 32, "lanes": "97,98,99,100"}
   ],
   "connector": [
-    {
-      "system_side": 1,
-      "line_side": 2
-    },
-    {
-      "system_side": 4,
-      "line_side": 3
-    },
-    {
-      "system_side": 31,
-      "line_side": 32
-    }
+    {"system_side": 1, "line_side": 2},
+    {"system_side": 4, "line_side": 3},
+    {"system_side": 31, "line_side": 32}
   ],
   "autoneg": "off",
   "speed":   "40000",
