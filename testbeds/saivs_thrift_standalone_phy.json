@@ -5,7 +5,7 @@
     "alias": "vs",
     "asic": "BCM81724",
     "target": "saivs",
-    "sku": "phy",
+    "sku": "32x100g",
     "client": {
       "type": "thrift",
       "config": {

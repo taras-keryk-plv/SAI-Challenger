@@ -43,45 +43,53 @@ class SaiPhy(Sai):
                                      ["SAI_SWITCH_ATTR_PORT_LIST", self.make_list(port_num, "oid:0x0")]).oids()
 
     def set_sku_mode(self, sku):
-        for port in sku["interfaces"]:
-            name = port["name"]
-            # system side
-            port_attr = []
-            lanes = ""
-            lane_list = port["system_lanes"]
-            for lane in lane_list:
-                lanes += str(lane)
-                lanes += ","
-            lanes = str(len(lane_list)) + ":" + lanes[:-1]
-            port_attr.append("SAI_PORT_ATTR_HW_LANE_LIST")
-            port_attr.append(lanes)
-            speed = str(port["system_speed"])
-            port_attr.append("SAI_PORT_ATTR_SPEED")
-            port_attr.append(speed)
-            system_port_oid = self.create(SaiObjType.PORT, port_attr)
+        for port_connector in sku["connector"]:
+            system_side_port = port_connector["system_side"]
+            line_side_port = port_connector["line_side"]
+            for port in sku["port"]:
+                if port["alias"] is not system_side_port and port["alias"] is not line_side_port:
+                    continue
 
-            # line side
-            port_attr = []
-            lanes = ""
-            lane_list = port["line_lanes"]
-            for lane in lane_list:
-                lanes += str(lane)
-                lanes += ","
-            lanes = str(len(lane_list)) + ":" + lanes[:-1]
-            port_attr.append("SAI_PORT_ATTR_HW_LANE_LIST")
-            port_attr.append(lanes)
-            speed = str(port["line_speed"])
-            port_attr.append("SAI_PORT_ATTR_SPEED")
-            port_attr.append(speed)
-            line_port_oid = self.create(SaiObjType.PORT, port_attr)
+                # Create port for system or line side
+                port_attr = []
+                lanes = port["lanes"]
+                lanes = str(lanes.count(',') + 1) + ":" + lanes
+                port_attr.append("SAI_PORT_ATTR_HW_LANE_LIST")
+                port_attr.append(lanes)
 
-            #system-line port connector
+                # Speed
+                speed = port["speed"] if "speed" in port else sku["speed"]
+                port_attr.append("SAI_PORT_ATTR_SPEED")
+                port_attr.append(speed)
+
+                # Autoneg
+                autoneg = port["autoneg"] if "autoneg" in port else sku["autoneg"]
+                autoneg = "true" if autoneg == "on" else "false"
+                port_attr.append("SAI_PORT_ATTR_AUTO_NEG_MODE")
+                port_attr.append(autoneg)
+
+                # FEC
+                fec = port["fec"] if "fec" in port else sku["fec"]
+                if fec == "rs":
+                    fec = "SAI_PORT_FEC_MODE_RS"
+                elif fec == "fc":
+                    fec = "SAI_PORT_FEC_MODE_FC"
+                else:
+                    fec = "SAI_PORT_FEC_MODE_NONE"
+                port_attr.append("SAI_PORT_ATTR_FEC_MODE")
+                port_attr.append(fec)
+
+                if port["alias"] == system_side_port:
+                    system_port_oid = self.create(SaiObjType.PORT, port_attr)
+                else:
+                    line_port_oid = self.create(SaiObjType.PORT, port_attr)
+
+            # Create port connector
             conn_port_oid = self.create(SaiObjType.PORT_CONNECTOR,
-                                [
-                                    "SAI_PORT_CONNECTOR_ATTR_SYSTEM_SIDE_PORT_ID", system_port_oid,
-                                    "SAI_PORT_CONNECTOR_ATTR_LINE_SIDE_PORT_ID",   line_port_oid
-                                ])
-            self.port_oids.append(conn_port_oid)
+                                        [
+                                            "SAI_PORT_CONNECTOR_ATTR_SYSTEM_SIDE_PORT_ID", system_port_oid,
+                                            "SAI_PORT_CONNECTOR_ATTR_LINE_SIDE_PORT_ID",   line_port_oid
+                                        ])
 
     def cleanup(self):
         super().cleanup()
