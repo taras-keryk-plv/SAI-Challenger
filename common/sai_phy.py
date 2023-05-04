@@ -1,7 +1,6 @@
 import json
 from saichallenger.common.sai import Sai
-from saichallenger.common.sai_data import SaiData, SaiObjType
-from saichallenger.common.sai_dataplane.sai_hostif_dataplane import SaiHostifDataPlane
+from saichallenger.common.sai_data import SaiObjType
 
 
 class SaiPhy(Sai):
