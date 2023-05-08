@@ -161,7 +161,6 @@ elif [ "${IMAGE_TYPE}" = "server" ]; then
 else
     CONTAINER="${PREFIX}-client-run"
 fi
-REDIS_CHECK="redis-cli ping > /dev/null "
+REDIS_CHECK="redis-cli ping > /dev/null"
 EXEC_CMDS="${REDIS_CHECK} && ${EXEC_CMD} || sleep 10; ${EXEC_CMD}"
 docker exec ${TTY} ${CONTAINER} bash -c "${EXEC_CMDS}"
-
