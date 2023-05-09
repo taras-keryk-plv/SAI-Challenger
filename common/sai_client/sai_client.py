@@ -94,12 +94,12 @@ class SaiClient:
     def spawn(params) -> 'SaiClient':
         """Load different SAI client implementations based on parameters"""
         # TODO move to loading different implementations by using python entrypoints mechanism
-        if params["type"] == "redis":
+        if params["client"]["type"] == "redis":
             from sai_client.sai_redis_client.sai_redis_client import SaiRedisClient
-            sai_client = SaiRedisClient(params["config"])
-        elif params["type"] == "thrift":
+            sai_client = SaiRedisClient(params)
+        elif params["client"]["type"] == "thrift":
             from sai_client.sai_thrift_client.sai_thrift_client import SaiThriftClient
-            sai_client = SaiThriftClient(params["config"])
+            sai_client = SaiThriftClient(params["client"]["config"])
         else:
             raise RuntimeError("Appropriate driver wasn't found")
         return sai_client

@@ -182,7 +182,7 @@ class Sai():
         self.rec2vid = {}
 
         cfg["client"]["config"]["saivs"] = self.libsaivs
-        self.sai_client = SaiClient.spawn(cfg["client"])
+        self.sai_client = SaiClient.spawn(cfg)
 
     @property
     def switch_oid(self):
