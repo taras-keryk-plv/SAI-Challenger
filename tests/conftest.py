@@ -141,6 +141,21 @@ def phy(exec_params, testbed_instance):
         phy.reset()
     return phy
 
+@pytest.fixture(scope="session", autouse=True)
+def asic_type(testbed_instance):
+    testbed = testbed_instance
+    if len(testbed_instance.npu) == 1:
+        asic_type = testbed_instance.npu
+        return testbed_instance.npu[0]
+    elif len(testbed_instance.dpu) == 1:
+        asic_type = testbed_instance.dpu
+        return testbed_instance.dpu[0]
+    elif len(testbed_instance.phy) == 1:
+        asic_type = testbed_instance.phy
+        return testbed_instance.phy[0]
+    else:
+        pytest.skip("invalid for \"{}\" testbed".format(testbed.meta.name))
+
 @pytest.fixture(scope="session")
 def dataplane_instance(exec_params, testbed_instance):
     if testbed_instance is not None:

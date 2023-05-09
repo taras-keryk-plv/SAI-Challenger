@@ -6,6 +6,8 @@ from saichallenger.common.sai_data import SaiObjType
 class SaiPhy(Sai):
 
     def __init__(self, cfg):
+        cfg["client"]["config"]["asic_type"] = "phy"
+        print("==TK0==")
         super().__init__(cfg)
         self.switch_oid = "oid:0x0"
         self.port_oids = []
