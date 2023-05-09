@@ -21,7 +21,7 @@ class SaiRedisClient(SaiClient):
 
         self.is_dut_mbr = cfg.get("mode") is not None
 
-        self.r = redis.Redis(host=self.server_ip, port=self.port, db=1)
+        self.r = redis.Redis(host=self.server_ip, port=self.port, db=9)
         self.loglevel_db = redis.Redis(host=self.server_ip, port=self.port, db=3)
 
     def cleanup(self):
@@ -117,7 +117,6 @@ class SaiRedisClient(SaiClient):
             attempts -= 1
             status = self.r.lrange("GETRESPONSE_KEY_VALUE_OP_QUEUE", 0, -1)
 
-        print(f"==TK1== op={op} obj={obj}, attrs={attrs} status={status} attempts={attempts}")
         self.r.delete("GETRESPONSE_KEY_VALUE_OP_QUEUE")
 
         assert len(status) == 3, "SAI \"{}\" operation failure!".format(op)
@@ -143,7 +142,6 @@ class SaiRedisClient(SaiClient):
 
         status = self.operate(obj, attrs, "Screate")
         status[2] = status[2].decode("utf-8")
-        print(f"==TK2==CREATE obj={obj}, attrs={attrs} status={status}")
         if do_assert:
             assert status[2] == 'SAI_STATUS_SUCCESS', f"create({obj}, {attrs}) --> {status}"
             return vid

@@ -14,6 +14,7 @@ class SaiPhyImpl(SaiPhy):
             "SAI_SWITCH_ATTR_REGISTER_READ",  "0",
             "SAI_SWITCH_ATTR_REGISTER_WRITE", "0",
             "SAI_SWITCH_ATTR_HARDWARE_ACCESS_BUS",  "SAI_SWITCH_HARDWARE_ACCESS_BUS_MDIO",
-            "SAI_SWITCH_ATTR_PLATFROM_CONTEXT", "0"
+            "SAI_SWITCH_ATTR_PLATFROM_CONTEXT", "0",
+            "SAI_SWITCH_ATTR_SWITCH_HARDWARE_INFO", "0:null"
         ]
         self.init(attr)

@@ -81,7 +81,7 @@ def main():
 
     nn_agent_p = None
     time.sleep(5)
-    r = redis.Redis(host='localhost', port=6379, db=1)
+    r = redis.Redis(host='localhost', port=6379, db=9)
     while True:
         cmd = r.lrange("SAI_CHALLENGER_CMD_QUEUE", 0, -1)
         if len(cmd) == 0:

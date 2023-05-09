@@ -131,7 +131,7 @@ class SaiDutSonic(SaiDut):
         self._assert_redis_is_available()
 
         # Flush SONiC Redis content
-        r = redis.Redis(host=self.server_ip, port=self.port, db=1)
+        r = redis.Redis(host=self.server_ip, port=self.port, db=9)
         r.flushall()
 
         # Write to CONFIG_DB SONiC device information needed on syncd start
@@ -155,7 +155,7 @@ class SaiDutSonic(SaiDut):
         self.ssh.exec_command("docker stop syncd")
         self.assert_container_state("syncd", is_running=False)
         # Flush ASIC_DB content
-        r = redis.Redis(host=self.server_ip, port=self.port, db=1)
+        r = redis.Redis(host=self.server_ip, port=self.port, db=9)
         r.flushdb()
         self.ssh.exec_command("docker start syncd")
 
