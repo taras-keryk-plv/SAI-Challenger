@@ -11,8 +11,7 @@
       "config": {
           "ip": "localhost",
           "port": "6379",
-          "loglevel": "NOTICE",
-          "asic_db": 9
+          "loglevel": "NOTICE"
       }
     }
   }

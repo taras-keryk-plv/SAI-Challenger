@@ -18,7 +18,8 @@ class SaiRedisClient(SaiClient):
         self.port = cfg["port"]
         self.libsaivs = cfg["saivs"]
         self.asic_channel = None
-        self.asic_db = cfg.get("asic_db", 1)
+        #self.asic_db = cfg.get("asic_db", 1)
+        self.asic_db = 9
 
         self.is_dut_mbr = cfg.get("mode") is not None
 

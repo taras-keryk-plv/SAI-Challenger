@@ -13,10 +13,13 @@
             "switches": [
                 {
                     "index" : 1,
-                    "hwinfo": ""
+                    "hwinfo": "md1"
+                },
+		        {
+                    "index" : 2,
+                    "hwinfo": "md2"
                 }
             ]
         }
     ]
 }
-
