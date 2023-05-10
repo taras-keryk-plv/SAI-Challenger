@@ -28,6 +28,9 @@ class SaiPhy(Sai):
         sw_attr.append("true")
         sw_attr.append("SAI_SWITCH_ATTR_TYPE")
         sw_attr.append("SAI_SWITCH_TYPE_PHY")
+        
+        sw_attr.append("SAI_SWITCH_ATTR_SWITCH_HARDWARE_INFO")
+        sw_attr.append("3:109,100,49")
 
         self.switch_oid = self.create(SaiObjType.SWITCH, sw_attr)
         self.rec2vid[self.switch_oid] = self.switch_oid
@@ -40,6 +43,19 @@ class SaiPhy(Sai):
         if port_num > 0:
             self.port_oids = self.get(self.switch_oid,
                                      ["SAI_SWITCH_ATTR_PORT_LIST", self.make_list(port_num, "oid:0x0")]).oids()
+            #############
+            sw_attr = attr.copy()
+        sw_attr.append("SAI_SWITCH_ATTR_INIT_SWITCH")
+        sw_attr.append("true")
+        sw_attr.append("SAI_SWITCH_ATTR_TYPE")
+        sw_attr.append("SAI_SWITCH_TYPE_PHY")
+        
+        sw_attr.append("SAI_SWITCH_ATTR_SWITCH_HARDWARE_INFO")
+        sw_attr.append("3:109,100,50")
+        self.switch_oid = self.create(SaiObjType.SWITCH, sw_attr)
+            #############
+
+
 
     def set_sku_mode(self, sku):
         port_map = dict()
