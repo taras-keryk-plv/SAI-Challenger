@@ -7,31 +7,24 @@ port_attrs_default = {}
 port_attrs_updated = {}
 
 
-@pytest.fixture(scope="module", autouse=True)
-def skip_all(testbed_instance):
-    testbed = testbed_instance
-    if testbed is not None and len(testbed.npu) != 1:
-        pytest.skip("invalid for \"{}\" testbed".format(testbed.meta.name))
-
-
 @pytest.fixture(scope="module")
-def sai_port_obj(npu):
-    port_oid = npu.port_oids[0]
+def sai_port_obj(asic_type):
+    port_oid = asic_type.port_oids[0]
     yield port_oid
 
     # Fall back to the defaults
     for attr in port_attrs_updated:
         if attr in port_attrs_default:
-            npu.set(port_oid, [attr, port_attrs_default[attr]])
+            asic_type.set(port_oid, [attr, port_attrs_default[attr]])
 
 
 @pytest.mark.parametrize(
     "attr,attr_type",
     port_attrs
 )
-def test_get_before_set_attr(npu, dataplane, sai_port_obj, attr, attr_type):#, attr_val):
-    status, data = npu.get_by_type(sai_port_obj, attr, attr_type, do_assert = False)
-    npu.assert_status_success(status)
+def test_get_before_set_attr(asic_type, dataplane, sai_port_obj, attr, attr_type):#, attr_val):
+    status, data = asic_type.get_by_type(sai_port_obj, attr, attr_type, do_assert = False)
+    asic_type.assert_status_success(status)
 
     if status == "SAI_STATUS_SUCCESS":
         port_attrs_default[attr] = data.value()
@@ -59,9 +52,9 @@ def test_get_before_set_attr(npu, dataplane, sai_port_obj, attr, attr_type):#, a
         #("SAI_PORT_ATTR_TPID",                      "37120"),   # TPID=0x9100
     ],
 )
-def test_set_attr(npu, dataplane, sai_port_obj, attr, attr_value):
-    status = npu.set(sai_port_obj, [attr, attr_value], False)
-    npu.assert_status_success(status)
+def test_set_attr(asic_type, dataplane, sai_port_obj, attr, attr_value):
+    status = asic_type.set(sai_port_obj, [attr, attr_value], False)
+    asic_type.assert_status_success(status)
 
     if status == "SAI_STATUS_SUCCESS":
         port_attrs_updated[attr] = attr_value
@@ -81,9 +74,9 @@ def test_set_attr(npu, dataplane, sai_port_obj, attr, attr_value):
         ("SAI_PORT_ATTR_TPID",                      "sai_uint16_t"),
     ]
 )
-def test_get_after_set_attr(npu, dataplane, sai_port_obj, attr, attr_type):
-    status, data = npu.get_by_type(sai_port_obj, attr, attr_type, do_assert = False)
-    npu.assert_status_success(status)
+def test_get_after_set_attr(asic_type, dataplane, sai_port_obj, attr, attr_type):
+    status, data = asic_type.get_by_type(sai_port_obj, attr, attr_type, do_assert = False)
+    asic_type.assert_status_success(status)
 
     if attr in port_attrs_updated:
         assert data.value() == port_attrs_updated[attr]

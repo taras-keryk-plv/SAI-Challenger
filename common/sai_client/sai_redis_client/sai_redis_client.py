@@ -11,17 +11,19 @@ class SaiRedisClient(SaiClient):
     """Redis SAI client implementation to wrap low level SAI calls"""
     attempts = 100
 
-    def __init__(self, cfg):
+    def __init__(self, params):
+        cfg = params["client"]["config"]
         self.config = cfg
         self.server_ip = cfg["ip"]
         self.loglevel = cfg["loglevel"]
         self.port = cfg["port"]
         self.libsaivs = cfg["saivs"]
         self.asic_channel = None
+        self.asic_db = 9 if cfg["asic_type"] is "phy" else 1
 
         self.is_dut_mbr = cfg.get("mode") is not None
 
-        self.r = redis.Redis(host=self.server_ip, port=self.port, db=1)
+        self.r = redis.Redis(host=self.server_ip, port=self.port, db=self.asic_db)
         self.loglevel_db = redis.Redis(host=self.server_ip, port=self.port, db=3)
 
     def cleanup(self):
@@ -552,6 +554,11 @@ class SaiRedisClient(SaiClient):
             if numsub[1] >= 1:
                 # SONiC 202205 or newer detected
                 self.asic_channel = "ASIC_STATE_CHANNEL@1"
+                return
+            numsub = self.r.execute_command('PUBSUB', 'NUMSUB', 'ASIC_STATE_CHANNEL@9')
+            if numsub[1] >= 1:
+                # SONiC with gearbox PHY
+                self.asic_channel = "ASIC_STATE_CHANNEL@9"
                 return
             if i < tout:
                 time.sleep(1)
