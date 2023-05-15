@@ -53,3 +53,10 @@ jobs:
       run: ./exec.sh --no-tty -s thrift pytest --testbed=saivs_thrift_standalone -v ut/test_vrf_ut.py ut/test_bridge_ut.py ut/test_acl_ut.py
     - name: Run thrift sairedis tests
       run: ./exec.sh --no-tty -s thrift pytest --testbed=saivs_thrift_standalone -v -k "test_sairec"
+    - name: Build standalone docker image with SAI redis for PHY BCM81724
+      run: ./build.sh -i standalone -a BCM81724 -t saivs
+    - name: Start SAI-C in standalone mode with SAI redis for PHY BCM81724
+      run: ./run.sh -i standalone -a BCM81724 -t saivs
+    - name: Run redis PHY unit tests for PHY BCM81724
+      run: ./exec.sh --no-tty -a BCM81724 -t saivs pytest --testbed=saivs_standalone_phy -v ut/test_switch_ut.py ut/test_port_ut.py -k \
+           "not PFC_TC_ and not SAI_SWITCH_ATTR_SYSTEM_PORT_CONFIG_LIST"
