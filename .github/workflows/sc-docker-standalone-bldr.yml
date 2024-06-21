@@ -13,7 +13,6 @@ on:
       - 'cli/**'
       - 'scripts/**'
       - 'configs/**'
-      - 'tests/**'
       - 'setup.py'
       - 'build.sh'
       - 'run.sh'
